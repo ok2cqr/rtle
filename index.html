@@ -1,0 +1,290 @@
+<!doctype html>
+<html lang="en" xmlns="http://www.w3.org/1999/html">
+
+<head>
+    <title>Real-time log entry</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link href="/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/css/style.css?v=202406230752" class="rel">
+
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+    <link rel="manifest" href="/site.webmanifest">
+    <link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+    <meta name="apple-mobile-web-app-title" content="RTLE">
+    <meta name="application-name" content="RTLE">
+    <meta name="msapplication-TileColor" content="#ffc40d">
+    <meta name="theme-color" content="#ffffff">
+
+    <meta name="description"
+          content="Realtime log entry - a tool to enter QSO from your SOTA/GMA/WWFF activations in real-time and create the ADIF file - everything just in your browser.">
+    <meta name="robots" content="index, follow">
+    <meta property="og:title"
+          content="Realtime log entry - a tool to enter QSO from your SOTA/GMA/WWFF activations in real-time and create the ADIF file - everything just in your browser.">
+    <meta property="og:url" content="https://rtle.ok2cqr.com">
+    <meta property="og:description"
+          content="Realtime log entry - a tool to enter QSO from your SOTA/GMA/WWFF activations in real-time and create the ADIF file - everything just in your browser.">
+    <meta property="og:site_name" content="Real-time log entry">
+    <meta property="og:type" content="article">
+    <meta name="twitter:title" content="Real-time log entry">
+    <meta name="twitter:url" content="https://rtle.ok2cqr.com">
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:description"
+          content="Realtime log entry - a tool to enter QSO from your SOTA/GMA/WWFF activations in real-time and create the ADIF file - everything just in your browser.">
+</head>
+
+<body>
+    <div class="container-fluid">
+        <header
+                class="d-flex flex-wrap align-items-center justify-content-center justify-content-md-between py-3 mb-4 border-bottom">
+            <div class="col-md-3 mb-2 mb-md-0">
+                <a href="/" class="d-inline-flex link-body-emphasis text-decoration-none">
+                    <span class="fs-4">Real-time log entry</span>
+                </a>
+            </div>
+
+            <ul class="nav nav-pills col-12 col-md-auto mb-2 justify-content-center mb-md-0" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active" id="pills-home-tab" data-bs-toggle="pill" data-bs-target="#qso"
+                            type="button" role="tab" aria-controls="pills-home" aria-selected="true">QSO Entry</button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="pills-profile-tab" data-bs-toggle="pill" data-bs-target="#settings"
+                            type="button" role="tab" aria-controls="pills-profile" aria-selected="false">Settings</button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="pills-about-tab" data-bs-toggle="pill" data-bs-target="#about"
+                            type="button" role="tab" aria-controls="pills-about" aria-selected="false">About</button>
+                </li>
+            </ul>
+
+            <div class="col-md-3 justify-content-end d-flex">
+                <div class="dropdown">
+                    <button class="btn btn-secondary dropdown-toggle d-flex align-items-center" id="bd-theme"
+                            type="button" aria-expanded="false" data-bs-toggle="dropdown" aria-label="Toggle theme (auto)">
+                        <span class="ms-2" id="bd-theme-text">Toggle theme</span>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="bd-theme-text">
+                        <li>
+                            <button type="button" class="dropdown-item d-flex align-items-center"
+                                    data-bs-theme-value="light" aria-pressed="false">
+                                Light
+                            </button>
+                        </li>
+                        <li>
+                            <button type="button" class="dropdown-item d-flex align-items-center"
+                                    data-bs-theme-value="dark" aria-pressed="false">
+                                Dark
+                            </button>
+                        </li>
+                        <li>
+                            <button type="button" class="dropdown-item d-flex align-items-center active"
+                                    data-bs-theme-value="auto" aria-pressed="true">
+                                Auto
+                            </button>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </header>
+
+        <div class="tab-content" id="myTabContent">
+            <div class="tab-pane fade show active" id="qso" role="tabpanel" aria-labelledby="qso-tab">
+                <div class="row mt-4">
+                    <div class="col-xs-12 col-md-8">
+                        <div class="row">
+                            <div class="col-6 col-xs-6 col-lg-6 col-xl-6">
+                                <div class="form-group">
+                                    <label for="my-sota-wwff">WWFF/SOTA</label>
+                                    <input type="text" class="form-control text-uppercase" id="my-sota-wwff"placeholder="OKFF-2068">
+                                </div>
+                            </div>
+                            <div class="col-6" id="js-visible-grid">
+                                <div class="form-group">
+                                    <label for="my-grid">My grid</label>
+                                    <input type="text" class="form-control text-uppercase" id="my-grid" value="" placeholder="JO70GG">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row mt-2">
+                            <div class="col-4 col-xs-4 col-lg-4 col-xl-4">
+                                <div class="form-group">
+                                    <label for="my-band">Band</label>
+                                    <select class="form-control" id="my-band" name="band">
+                                        <option value="1.825">160M</option>
+                                        <option value="3.525">80M</option>
+                                        <option value="7.025">40M</option>
+                                        <option value="5.3530">60M</option>
+                                        <option value="10.120">30M</option>
+                                        <option value="14.025">20M</option>
+                                        <option value="18.068">17M</option>
+                                        <option value="21.025">15M</option>
+                                        <option value="24.890">12M</option>
+                                        <option value="28.025">10M</option>
+                                        <option value="144.100">2M</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-4" id="js-visible-freq">
+                                <div class="form-group">
+                                    <label for="my-freq">Freq</label>
+                                    <input type="text" class="form-control text-uppercase" id="my-freq" value="" placeholder="7.028">
+                                </div>
+                            </div>
+                            <div class="col-4">
+                                <div class="form-group">
+                                    <label for="my-mode">Mode</label>
+                                    <select class="form-control" id="my-mode" name="mode">
+                                        <option value="SSB">SSB</option>
+                                        <option value="CW">CW</option>
+                                        <option value="FM">FM</option>
+                                        <option value="FT-8">FT-8</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row mt-3 d-none">
+                            <div class="col">
+                                <span class="text-muted" id="js-info-message">QSO count: </span>
+                            </div>
+                        </div>
+                        <div class="row mt-2">
+                            <div class="col-10">
+                                <div class="form-group">
+                                    <label for="js-qso-data">
+                                        QSO
+                                    </label>
+                                    <span class="small text-muted mx-4" id="js-datetime"></span>
+                                    <input type="text" class="form-control text-uppercase" id="js-qso-data" value="" autofocus>
+                                </div>
+                            </div>
+                            <div class="col-1 text-start mt-4" style="margin-left: -20px">
+                                <button class="btn btn-danger" id="js-clear-button">
+                                    Clear
+                                </button>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col">
+                                <div class="form-text">Enter callsign, reports and/or reference number e.g. OK2CQR 5 OKFF-3029 separated by space, hit <strong>Enter to save</strong> the QSO</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row mt-2">
+
+                </div>
+                <div class="row mt-4">
+                    <div class="col">
+                        <span id="js-status-message">Status: </span>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col">
+                        <p class="js-status"></p>
+                    </div>
+                </div>
+                <div class="row mt-2">
+                    <div class="col-6">
+                        <button type="submit" class="btn btn-danger" id="js-delete-button">Clear the log</button>
+                    </div>
+                    <div class="col-6 text-end">
+                        <button type="submit" class="btn btn-primary" id="js-submit-button">Export the log</button>
+                    </div>
+                </div>
+            </div>
+            <div class="tab-pane fade show" id="settings" role="tabpanel" aria-labelledby="settings-tab">
+                <div class="row mt-4">
+                    <div class="col fw-bold">
+                        QSO
+                    </div>
+                </div>
+                <div class="row mt-4">
+                    <div class="col-6">
+                        <div class="form-group">
+                            <label for="my-call">My call <span class="text-muted">e.g.
+                                                OK2CQR/P</span></label>
+                            <input type="text" class="form-control text-uppercase" id="my-call">
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="form-group">
+                            <label for="operator">Operator <span class="text-muted">e.g.
+                                                OK2CQR</span></label>
+                            <input type="text" class="form-control text-uppercase" id="operator">
+                        </div>
+                    </div>
+                </div>
+                <div class="row mt-4">
+                    <div class="col-6">
+                        <div class="form-group">
+                            <label for="my-power">Power (W)</label>
+                            <input type="text" class="form-control text-uppercase" id="my-power" value="">
+                        </div>
+                    </div>
+                </div>
+                <div class="row mt-4">
+                    <div class="col fw-bold">
+                        QSO Entry
+                    </div>
+                </div>
+                <div class="row mt-4">
+                    <div class="col fw-bold">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" value="" id="js-show-grid">
+                            <label class="form-check-label" for="js-show-grid">
+                                Show Grid field next to the WWFF/SOTA
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                <div class="row mt-4">
+                    <div class="col fw-bold">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" value="" id="js-show-freq">
+                            <label class="form-check-label" for="js-show-freq">
+                                Show Freq field
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+            <div class="tab-pane fade" id="about" role="tabpanel" aria-labelledby="about-tab">
+                <div class="row mt-4">
+                    <div class="col">
+                    </div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col">
+                        <strong>Changelog:</strong>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="row">
+                        <div class="col">
+                            <strong>2024-04-27</strong>
+                            <ul class="mt-1">
+                                <li><span class="text-danger text-monospace">fix:</span> three digit report on CW mode was ignored (thanks to Colin, G8TMV)</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <footer class="footer">
+        <div class="container text-center">
+                <span class="text-muted">
+                    Real-time QSO logger for WWFF/SOTA by <a href="https://github.com/ok2cqr" target="_blank">OK2CQR</a>
+                </span>
+        </div>
+    </footer>
+    <script src="/js/bootstrap.bundle.min.js"></script>
+    <script src="/js/app.js?v=202406230752"></script>
+    <script src="/js/theme-toggle.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,61 @@
+html {
+    height: 100%;
+}
+
+body {
+    display: flex;
+    flex-direction: column;;
+    min-height: 100%;
+}
+
+.footer {
+    position: sticky;
+    bottom: 0;
+    width: 100%;
+    min-height: 30px;
+    margin-top: auto;
+    line-height: 14px;
+    background-color: hsl(0, 0%, 96%);
+    font-size: 10px;
+    padding-top: 8px;
+    padding-bottom: 8px;
+}
+
+[data-bs-theme="dark"] .footer {
+    background-color: hsl(0, 0%, 10%);
+}
+
+.qso-area {
+    font-family: "Courier New", Courier, monospace;
+    font-size: larger;
+}
+
+.qsoList {
+    height: 440px;
+}
+
+table {
+    width: 100%;
+}
+
+thead,
+tbody tr {
+    display: table;
+    width: 100%;
+    table-layout: fixed;
+    display: inline-table;
+}
+tbody {
+    overflow-y: scroll;
+    max-height: 380px;
+    position: absolute;
+}
+
+@media (min-width: 1200px) {
+    .input-example {
+        font-size: x-small;
+    }
+    label {
+        font-size: small;
+    }
+}
