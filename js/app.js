@@ -4,13 +4,82 @@ window.onload = function() {
     loadSavedConfiguration();
 };
 
+const Bands = {
+    b160M: {
+        cw: "1.825",
+        ssb: "1.890",
+        digi: "1.840",
+    },
+    b80M: {
+        cw: "3.532",
+        ssb: "3.770",
+        digi: "3.573",
+    },
+    b60M: {
+        cw: "5.353",
+        ssb: "5.450",
+        digi: "5.357",
+    },
+    b40M: {
+        cw: "7.032",
+        ssb: "7.100",
+        digi: "7.074",
+    },
+    b30M: {
+        cw: "10.110",
+        ssb: "10.120",
+        digi: "10.136",
+    },
+    b20M: {
+        cw: "14.032",
+        ssb: "14.200",
+        digi: "14.074",
+    },
+    b17M: {
+        cw: "18.070",
+        ssb: "18.120",
+        digi: "18.104",
+    },
+    b15M: {
+        cw: "21.032",
+        ssb: "21.200",
+        digi: "21.074",
+    },
+    b12M: {
+        cw: "24.895",
+        ssb: "24.910",
+        digi: "24.915",
+    },
+    b10M: {
+        cw: "28.032",
+        ssb: "28.200",
+        digi: "28.074",
+    },
+    b6M: {
+        cw: "50.090",
+        ssb: "50.350",
+        digi: "50.313",
+    },
+    b2M: {
+        cw: "144.090",
+        ssb: "144.250",
+        digi: "144.174",
+    },
+    b70CM: {
+        cw: "432.050",
+        ssb: "432.300",
+        digi: "432.065",
+    },
+};
+
+
 function loadSavedConfiguration() {
     let freq = window.localStorage.getItem('my-freq');
     if (freq === null) {
         freq = '7.028';
     }
     document.getElementById('my-freq').value = freq;
-    sendBandSelectBox(freq);
+    setBandSelectBoxByFreq(freq);
     window.localStorage.setItem('my-band', document.getElementById('my-band').value);
 
     let showGrid = window.localStorage.getItem('show-grid');
@@ -40,103 +109,22 @@ function loadSavedConfiguration() {
     document.getElementById('my-power').value = window.localStorage.getItem('my-power');
 }
 
-function setListeners() {
-    document.getElementById('my-freq').addEventListener('blur', function() {
-        if (this.value !== '') {
-            sendBandSelectBox(this.value);
-            window.localStorage.setItem('my-freq', this.value);
-            window.localStorage.setItem('my-band', document.getElementById('my-band').value);
-        }
-    });
-
-    document.getElementById('my-band').addEventListener('change', function() {
-        if (this.value !== '') {
-            document.getElementById('my-freq').value = this.value;
-            window.localStorage.setItem('my-freq', this.value);
-            window.localStorage.setItem('my-band', document.getElementById('my-band').value);
-        }
-    });
-
-    document.getElementById('my-call').addEventListener('blur', function() {
-        window.localStorage.setItem('my-call', this.value);
-    });
-
-    document.getElementById('operator').addEventListener('blur', function() {
-        window.localStorage.setItem('operator', this.value);
-    });
-
-    document.getElementById('my-power').addEventListener('blur', function() {
-        window.localStorage.setItem('my-power', this.value);
-    });
-
-    document.getElementById('js-show-grid').addEventListener('change', function() {
-        if (this.checked) {
-            if (document.getElementById('js-visible-grid').classList.contains('d-none')) {
-                document.getElementById('js-visible-grid').classList.remove('d-none');
-            }
-        } else {
-            if (!document.getElementById('js-visible-grid').classList.contains('d-none')) {
-                document.getElementById('js-visible-grid').classList.add('d-none');
-            }
-        }
-
-        window.localStorage.setItem('show-grid', this.checked);
-    });
-
-    document.getElementById('js-show-freq').addEventListener('change', function() {
-        if (this.checked) {
-            if (document.getElementById('js-visible-freq').classList.contains('d-none')) {
-                document.getElementById('js-visible-freq').classList.remove('d-none');
-            }
-        } else {
-            if (!document.getElementById('js-visible-freq').classList.contains('d-none')) {
-                document.getElementById('js-visible-freq').classList.add('d-none');
-            }
-        }
-
-        window.localStorage.setItem('show-freq', this.checked);
-    });
-
-    document.getElementById('my-mode').addEventListener('change', function() {
-        if (this.value !== '') {
-            window.localStorage.setItem('my-mode', this.value);
-        }
-    });
-
-
-    document.getElementById('js-clear-button').addEventListener('click', function() {
-        document.getElementById('js-qso-data').value = '';
-        document.getElementById('js-qso-data').focus();
-    });
-
-    document.getElementById('js-qso-data').addEventListener('keypress', function(event) {
-        if (event.key === 'Enter') {
-            console.log(this.value);
-            parseQsoData(this.value);
-            event.preventDefault();
-        }
-    });
-
-    document.getElementById('my-sota-wwff').addEventListener('blur', function() {
-        window.localStorage.setItem('my-sota-wwff', this.value);
-    });
-}
-
 function parseQsoData(qsoData) {
     let mode = document.getElementById('my-mode').value;
     let text = document.getElementById('js-qso-data').value;
+    let sotaWff = document.getElementById('my-sota-wwff').value;
+    let callsign = document.getElementById('my-call').value;
+    let freq = document.getElementById('my-freq').value;
     let band = document.getElementById('my-band').options[document.getElementById('my-band').selectedIndex].text;
+
     let rst_s = null;
     let rst_r = null;
 
-    let freq = document.getElementById('my-freq').value;
-    let row = text.trim();
-    let itemNumber = 0;
     let qsoTime = getUtcTime();
     let qsoDate = getUtcDate();
-    let sotaWff = '';
-    let callsign = '';
 
+    let itemNumber = 0;
+    let row = text.trim();
     let items = row.split(" ");
     items.forEach((item) => {
         if (item === '') {
@@ -174,6 +162,18 @@ function parseQsoData(qsoData) {
     rst_s = getFullReport(rst_s, mode);
     rst_r = getFullReport(rst_r, mode);
 
+    document.getElementById('my-mode').value = mode;
+    if (band) {
+        setBand(band);
+        freq = getFreqFromBandMode(band, mode);
+        document.getElementById('my-freq').value = freq;
+    }
+
+    if (freq > 0) {
+        document.getElementById('my-freq').value = freq;
+        document.getElementById('my-freq').dispatchEvent(new Event('blur'));
+    }
+
     console.log(
         'QSODATE:', qsoDate, "\n",
         'QSOTime:', qsoTime, "\n",
@@ -191,39 +191,21 @@ function parseQsoData(qsoData) {
 }
 
 
-function sendBandSelectBox(freq) {
-    let value = 0;
-    if ((freq > 1.7) && (freq < 2)) {
-        value = "1.825";
-    } else if (freq > 3.4 && freq < 4) {
-        value = "3.525";
-    } else if ((freq > 6.9) && (freq < 7.3)) {
-        value = "7.025";
-    } else if ((freq > 5) && (freq < 6)) {
-        value = "5.353";
-    } else if ((freq > 10) && (freq < 11)) {
-        value = "10.120";
-    } else if ((freq > 13) && (freq < 15)) {
-        value = "14.025";
-    } else if ((freq > 18) && (freq < 19)) {
-        value = "18.068";
-    } else if ((freq > 20) && (freq < 22)) {
-        value = "21.025";
-    } else if ((freq > 24) && (freq < 25)) {
-        value = "24.890";
-    } else if ((freq > 27) && (freq < 30)) {
-        value = "28.025";
-    } else if ((freq > 144) && (freq < 149)) {
-        value = "144.100";
-    }
+function setBandSelectBoxByFreq(freq) {
+    let band = getBandFromFreq(freq);
+    setBand(band);
+}
 
+function setBand(band) {
     let select = document.getElementById('my-band')
     for(let i = 0; i < select.options.length; i++) {
-        if(select.options[i].value === value) {
+        if(select.options[i].text === band) {
             select.options[i].selected = true;
             break;
         }
     }
+
+    localStorage.setItem('my-band', band);
 }
 
 function showTime() {
@@ -304,4 +286,143 @@ function checkSettings() {
     }
 
     document.getElementById('js-status-message').innerHTML = messages;
+}
+
+function getBandFromFreq(freq) {
+    if (freq > 1.7 && freq < 2) {
+        return "160M";
+    } else if (freq > 3.4 && freq < 4) {
+        return "80M";
+    } else if (freq > 6.9 && freq < 7.3) {
+        return "40M";
+    } else if (freq > 5 && freq < 6) {
+        return "60M";
+    } else if (freq > 10 && freq < 11) {
+        return "30M";
+    } else if (freq > 13 && freq < 15) {
+        return "20M";
+    } else if (freq > 18 && freq < 19) {
+        return "17M";
+    } else if (freq > 20 && freq < 22) {
+        return "15M";
+    } else if (freq > 24 && freq < 25) {
+        return "12M";
+    } else if (freq > 27 && freq < 30) {
+        return "10M";
+    } else if (freq > 50 && freq < 55) {
+        return "6M";
+    } else if (freq > 144 && freq < 149) {
+        return "2M";
+    } else if (freq > 430 && freq < 460) {
+        return "70CM";
+    }
+
+    return '';
+}
+
+function getFreqFromBandMode(band, mode) {
+    mode = mode.toLowerCase();
+
+    band = 'b' + band.toUpperCase();
+
+    if (Bands[band][mode] === undefined) {
+        return '';
+    } else {
+        return Bands[band][mode];
+    }
+}
+
+function getDefaultMode(mode) {
+    mode = mode.toLowerCase();
+    if (mode === 'CW' || mode === 'SSB' || mode === 'FM') {
+        return mode;
+    }
+
+    return 'DIGI';
+}
+
+/////////////////////////////// Listeners
+
+function setListeners() {
+    document.getElementById('my-freq').addEventListener('blur', function() {
+        if (this.value !== '') {
+            setBandSelectBoxByFreq(this.value);
+
+            window.localStorage.setItem('my-freq', this.value);
+            window.localStorage.setItem('my-band', document.getElementById('my-band').value);
+        }
+    });
+
+    document.getElementById('my-band').addEventListener('change', function() {
+        if (this.value !== '') {
+            let freq = getFreqFromBandMode(this.value, document.getElementById('my-mode').value);
+            document.getElementById('my-freq').value = freq;
+
+            window.localStorage.setItem('my-freq', freq);
+            window.localStorage.setItem('my-band', this.value);
+        }
+    });
+
+    document.getElementById('my-call').addEventListener('blur', function() {
+        window.localStorage.setItem('my-call', this.value);
+    });
+
+    document.getElementById('operator').addEventListener('blur', function() {
+        window.localStorage.setItem('operator', this.value);
+    });
+
+    document.getElementById('my-power').addEventListener('blur', function() {
+        window.localStorage.setItem('my-power', this.value);
+    });
+
+    document.getElementById('js-show-grid').addEventListener('change', function() {
+        if (this.checked) {
+            if (document.getElementById('js-visible-grid').classList.contains('d-none')) {
+                document.getElementById('js-visible-grid').classList.remove('d-none');
+            }
+        } else {
+            if (!document.getElementById('js-visible-grid').classList.contains('d-none')) {
+                document.getElementById('js-visible-grid').classList.add('d-none');
+            }
+        }
+
+        window.localStorage.setItem('show-grid', this.checked);
+    });
+
+    document.getElementById('js-show-freq').addEventListener('change', function() {
+        if (this.checked) {
+            if (document.getElementById('js-visible-freq').classList.contains('d-none')) {
+                document.getElementById('js-visible-freq').classList.remove('d-none');
+            }
+        } else {
+            if (!document.getElementById('js-visible-freq').classList.contains('d-none')) {
+                document.getElementById('js-visible-freq').classList.add('d-none');
+            }
+        }
+
+        window.localStorage.setItem('show-freq', this.checked);
+    });
+
+    document.getElementById('my-mode').addEventListener('change', function() {
+        if (this.value !== '') {
+            window.localStorage.setItem('my-mode', this.value);
+        }
+    });
+
+
+    document.getElementById('js-clear-button').addEventListener('click', function() {
+        document.getElementById('js-qso-data').value = '';
+        document.getElementById('js-qso-data').focus();
+    });
+
+    document.getElementById('js-qso-data').addEventListener('keypress', function(event) {
+        if (event.key === 'Enter') {
+            parseQsoData(this.value);
+            event.preventDefault();
+        }
+    });
+
+    document.getElementById('my-sota-wwff').addEventListener('blur', function() {
+        window.localStorage.setItem('my-sota-wwff', this.value);
+    });
 }
