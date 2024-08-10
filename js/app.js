@@ -107,6 +107,7 @@ function loadSavedConfiguration() {
     document.getElementById('my-call').value = window.localStorage.getItem('my-call');
     document.getElementById('operator').value = window.localStorage.getItem('operator');
     document.getElementById('my-power').value = window.localStorage.getItem('my-power');
+    document.getElementById('my-grid').value = window.localStorage.getItem('my-grid');
 }
 
 function parseQsoData(qsoData) {
@@ -424,5 +425,9 @@ function setListeners() {
 
     document.getElementById('my-sota-wwff').addEventListener('blur', function() {
         window.localStorage.setItem('my-sota-wwff', this.value);
+    });
+
+    document.getElementById('my-grid').addEventListener('blur', function() {
+        window.localStorage.setItem('my-grid', this.value);
     });
 }
