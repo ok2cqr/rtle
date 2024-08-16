@@ -118,15 +118,10 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="row mt-3 d-none">
-                            <div class="col">
-                                <span class="text-muted" id="js-info-message">QSO count: </span>
-                            </div>
-                        </div>
                         <div class="row mt-2">
                             <div class="col-10">
                                 <div class="form-group">
-                                    <label for="js-qso-data">
+                                    <label for="js-qso-data" id="js-qso-info">
                                         QSO
                                     </label>
                                     <span class="small text-muted mx-4" id="js-datetime"></span>
@@ -139,10 +134,24 @@
                                 </button>
                             </div>
                         </div>
-                        <div class="row">
+                        <div class="row mb-4">
                             <div class="col">
                                 <div class="form-text">Enter callsign, reports and/or reference number e.g. OK2CQR 5 OKFF-3029 separated by space, hit <strong>Enter to save</strong> the QSO</div>
                             </div>
+                        </div>
+                        <div class="row mb-4" style="height: auto;overflow: visible;">
+                            <table class="table table-striped mb-5" id="logTable" style="font-size: small;">
+                                <thead>
+                                    <tr>
+                                        <th scope="col">Date</th>
+                                        <th scope="col">Call</th>
+                                        <th scope="col">M/B</th>
+                                        <th scope="col">Ref</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                </tbody>
+                            </table>
                         </div>
                     </div>
                 </div>
@@ -282,6 +291,89 @@
                 </div>
             </div>
         </div>
+        <div class="modal fade" id="myModal" tabindex="-1">
+            <div class="modal-dialog modal-dialog-scrollable">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Edit QSO</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="container-fluid">
+                            <div class="row">
+                            <form>
+                                <div class="mb-3">
+                                    <label for="editQsoDate" class="form-label">QSO date</label>
+                                    <input type="date" class="form-control" id="editQsoDate">
+                                </div>
+                                <div class="mb-3">
+                                    <label for="editQsoTime" class="form-label">QSO time</label>
+                                    <input type="time" class="form-control" id="editQsoTime">
+                                </div>
+                                <div class="mb-3">
+                                    <label for="editCallsign" class="form-label">Callsign</label>
+                                    <input type="text" class="form-control text-uppercase" id="editCallsign">
+                                </div>
+                                <div class="mb-3">
+                                    <label for="editMode">Mode</label>
+                                    <select class="form-control" id="editMode" name="editMode">
+                                        <option value="SSB">SSB</option>
+                                        <option value="CW">CW</option>
+                                        <option value="FM">FM</option>
+                                        <option value="FT-8">FT-8</option>
+                                    </select>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="editBand" class="form-label">Band</label>
+                                    <select class="form-control" id="editBand" name="editBand">
+                                        <option value="160M">160M</option>
+                                        <option value="80M">80M</option>
+                                        <option value="40M">40M</option>
+                                        <option value="60M">60M</option>
+                                        <option value="30M">30M</option>
+                                        <option value="20M">20M</option>
+                                        <option value="17M">17M</option>
+                                        <option value="15M">15M</option>
+                                        <option value="12M">12M</option>
+                                        <option value="10M">10M</option>
+                                        <option value="2M">2M</option>
+                                        <option value="70CM">70CM</option>
+                                    </select>
+                                </div>
+                                <div class="mb-3" id="editFreqContainer">
+                                    <label for="editFreq" class="form-label">Freq</label>
+                                    <input type="text" class="form-control" id="editFreq">
+                                </div>
+                                <div class="mb-3">
+                                    <label for="editRSTS" class="form-label">RST sent</label>
+                                    <input type="text" class="form-control text-uppercase" id="editRSTS">
+                                </div>
+                                <div class="mb-3">
+                                    <label for="editRSTR" class="form-label">RST rcvd</label>
+                                    <input type="text" class="form-control text-uppercase" id="editRSTR">
+                                </div>
+                                <div class="mb-3">
+                                    <label for="editSotaWff" class="form-label">SOTA/WFF</label>
+                                    <input type="text" class="form-control text-uppercase" id="editSotaWff">
+                                </div>
+                            </form>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <div class="row">
+                            <div class="col-3 col-sm-2 text-start">
+                                <button type="button" class="btn btn-danger" id="js-delete-qso">Delete</button>
+                            </div>
+                            <div class="col-9 col-sm-10 text-end">
+                                <button type="button" class="btn btn-primary" id="js-save-qso">Save changes</button>
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
     <footer class="footer">
         <div class="container text-center">
@@ -291,7 +383,7 @@
         </div>
     </footer>
     <script src="/js/bootstrap.bundle.min.js"></script>
-    <script src="/js/app.js?v=202408101255"></script>
+    <script src="/js/app.js?v=202408162148"></script>
     <script src="/js/theme-toggle.js"></script>
 </body>
 

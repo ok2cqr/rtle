@@ -4,6 +4,10 @@ window.onload = function() {
     loadSavedConfiguration();
 };
 
+let logItems = [];
+let myModal;
+let maxId = 0;
+
 const Bands = {
     b160M: {
         cw: "1.825",
@@ -74,6 +78,19 @@ const Bands = {
 
 
 function loadSavedConfiguration() {
+    logItems = loadAllQSO();
+    if (Object.keys(logItems).length === 0) {
+        maxId = 0;
+    } else {
+        for (const id in logItems) {
+            if (id > maxId) {
+                maxId = id;
+            }
+        }
+        maxId++;
+    }
+    displayTable();
+
     let freq = window.localStorage.getItem('my-freq');
     if (freq === null) {
         freq = '7.028';
@@ -113,10 +130,11 @@ function loadSavedConfiguration() {
 function parseQsoData(qsoData) {
     let mode = document.getElementById('my-mode').value;
     let text = document.getElementById('js-qso-data').value;
-    let sotaWff = document.getElementById('my-sota-wwff').value;
-    let callsign = document.getElementById('my-call').value;
     let freq = document.getElementById('my-freq').value;
     let band = document.getElementById('my-band').options[document.getElementById('my-band').selectedIndex].text;
+
+    let sotaWff = '';
+    let callsign = '';
 
     let rst_s = null;
     let rst_r = null;
@@ -175,22 +193,116 @@ function parseQsoData(qsoData) {
         document.getElementById('my-freq').dispatchEvent(new Event('blur'));
     }
 
-    console.log(
-        'QSODATE:', qsoDate, "\n",
-        'QSOTime:', qsoTime, "\n",
-        'Call:', callsign, "\n",
-        'Mode:', mode, "\n",
-        'Band:', band, "\n",
-        'Freq:', freq, "\n",
-        'RST_S:', rst_s, "\n",
-        'RST_R:', rst_r, "\n",
-        'WWFF:', sotaWff, "\n",
-    );
+    if (callsign) {
+        logItems[maxId] = {
+            "id" : maxId,
+            "qsodate": qsoDate,
+            "qsoTime": qsoTime,
+            "callsign": callsign,
+            "mode": mode,
+            "band": band,
+            "freq": freq,
+            "rst_s": rst_s,
+            "rst_r": rst_r,
+            "sotaWff": sotaWff
+        };
+        maxId++;
+
+        saveAllQSO();
+        displayTable();
+        console.log(
+            'QSODATE:', qsoDate, "\n",
+            'QSOTime:', qsoTime, "\n",
+            'Call:', callsign, "\n",
+            'Mode:', mode, "\n",
+            'Band:', band, "\n",
+            'Freq:', freq, "\n",
+            'RST_S:', rst_s, "\n",
+            'RST_R:', rst_r, "\n",
+            'WWFF:', sotaWff, "\n",
+        );
+    }
 
     checkSettings();
     document.getElementById('js-clear-button').dispatchEvent(new Event('click'));
 }
 
+function displayTable() {
+    const tbody = document.getElementById('logTable').querySelector('tbody');
+    tbody.innerHTML = '';
+
+    let reversed = [];
+    for (const id in logItems) {
+        reversed[id] = logItems[id];
+    }
+    reversed = reversed.reverse();
+    let itemCount = 0;
+    for (const id in reversed) {
+        const log = reversed[id];
+        if (log === null) {
+            continue;
+        }
+        const dateParts  = log.qsodate.split('-');
+
+        const row = document.createElement('tr');
+        row.setAttribute('data-id', log['id']);
+
+        row.innerHTML = `
+            <td>${dateParts[2]}/${dateParts[1]}/${log.qsoTime}</td>
+            <td>${log.callsign}</td>
+            <td>${log.mode}/${log.band}</td>
+            <td>${log.sotaWff}</td>
+        `;
+
+        row.addEventListener('click', () => enableEdit(row, log['id']));
+
+        tbody.appendChild(row);
+        itemCount++;
+    }
+
+    document.getElementById('js-qso-info').innerText = 'QSO ('+itemCount+')';
+}
+
+function enableEdit(row, id) {
+    let options = [];
+    myModal = new bootstrap.Modal(document.getElementById('myModal'), options);
+
+    document.getElementById('editQsoDate').value = logItems[id].qsodate;
+    document.getElementById('editQsoTime').value = logItems[id].qsoTime;
+    document.getElementById('editCallsign').value = logItems[id].callsign;
+    document.getElementById('editMode').value = logItems[id].mode;
+    document.getElementById('editBand').value = logItems[id].band;
+    if (document.getElementById('js-show-freq').checked) {
+        document.getElementById('editFreq').value = logItems[id].freq;
+    }
+    document.getElementById('editRSTS').value = logItems[id].rst_s;
+    document.getElementById('editRSTR').value = logItems[id].rst_r;
+    document.getElementById('editSotaWff').value = logItems[id].sotaWff;
+
+    document.getElementById('js-delete-qso').setAttribute('data-id', id);
+    document.getElementById('js-save-qso').setAttribute('data-id', id);
+    myModal.show();
+}
+
+function deleteItem(id) {
+    delete logItems[id];
+    document.querySelector(`tr[data-id="${id}"]`).remove();
+}
+
+function editItem(id) {
+    let log = logItems[id];
+    log.qsodate = document.getElementById('editQsoDate').value;
+    log.qsoTime = document.getElementById('editQsoTime').value;
+    log.callsign = document.getElementById('editCallsign').value;
+    log.mode = document.getElementById('editMode').value;
+    log.band = document.getElementById('editBand').value;
+    log.freq = document.getElementById('editFreq').value;
+    log.rst_s = document.getElementById('editRSTS').value;
+    log.rst_r = document.getElementById('editRSTR').value;
+    log.sotaWff = document.getElementById('editSotaWff').value;
+
+    displayTable();
+}
 
 function setBandSelectBoxByFreq(freq) {
     let band = getBandFromFreq(freq);
@@ -342,6 +454,14 @@ function getDefaultMode(mode) {
     return 'DIGI';
 }
 
+function loadAllQSO() {
+    return JSON.parse(localStorage.getItem('logItems')) || [];
+}
+
+function saveAllQSO() {
+    localStorage.setItem('logItems', JSON.stringify(logItems));
+}
+
 /////////////////////////////// Listeners
 
 function setListeners() {
@@ -395,9 +515,15 @@ function setListeners() {
             if (document.getElementById('js-visible-freq').classList.contains('d-none')) {
                 document.getElementById('js-visible-freq').classList.remove('d-none');
             }
+            if (document.getElementById('editFreqContainer').classList.contains('d-none')) {
+                document.getElementById('editFreqContainer').classList.remove('d-none');
+            }
         } else {
             if (!document.getElementById('js-visible-freq').classList.contains('d-none')) {
                 document.getElementById('js-visible-freq').classList.add('d-none');
+            }
+            if (!document.getElementById('editFreqContainer').classList.contains('d-none')) {
+                document.getElementById('editFreqContainer').classList.add('d-none');
             }
         }
 
@@ -409,7 +535,6 @@ function setListeners() {
             window.localStorage.setItem('my-mode', this.value);
         }
     });
-
 
     document.getElementById('js-clear-button').addEventListener('click', function() {
         document.getElementById('js-qso-data').value = '';
@@ -429,5 +554,23 @@ function setListeners() {
 
     document.getElementById('my-grid').addEventListener('blur', function() {
         window.localStorage.setItem('my-grid', this.value);
+    });
+
+    document.getElementById('js-delete-qso').addEventListener('click', function() {
+        const id = this.getAttribute('data-id');
+        if (confirm('Do you really want to delete this QSO?')) {
+            deleteItem(id);
+            saveAllQSO();
+            myModal.hide();
+            displayTable();
+        }
+    });
+
+    document.getElementById('js-save-qso').addEventListener('click', function() {
+        const id = this.getAttribute('data-id');
+        editItem(id);
+        saveAllQSO();
+
+        myModal.hide();
     });
 }
