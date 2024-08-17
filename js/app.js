@@ -584,4 +584,14 @@ function setListeners() {
 
         myModal.hide();
     });
+
+    document.getElementById('js-clear-log-button').addEventListener('click', function() {
+        if (confirm("Do you really want to CLEAR the log? \n\n It will REMOVE ALL QSO permanently!")) {
+            logItems = [];
+            saveAllQSO();
+            displayTable();
+
+            document.getElementById("js-qso-data").focus();
+        }
+    });
 }
