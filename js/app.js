@@ -212,10 +212,11 @@ function parseQsoData(qsoData) {
             'RST_R:', rst_r, "\n",
             'WWFF:', sotaWff, "\n",
         );
+
+        document.getElementById('js-clear-button').dispatchEvent(new Event('click'));
     }
 
     checkSettings();
-    document.getElementById('js-clear-button').dispatchEvent(new Event('click'));
 }
 
 function displayTable() {
