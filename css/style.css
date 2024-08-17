@@ -40,15 +40,11 @@ table {
 
 thead,
 tbody tr {
-    display: table;
     width: 100%;
     table-layout: fixed;
-    display: inline-table;
 }
 tbody {
     overflow-y: scroll;
-    max-height: 380px;
-    position: absolute;
 }
 
 @media (min-width: 1200px) {
