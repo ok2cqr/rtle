@@ -79,16 +79,7 @@ const Bands = {
 
 function loadSavedConfiguration() {
     logItems = loadAllQSO();
-    if (Object.keys(logItems).length === 0) {
-        maxId = 0;
-    } else {
-        for (const id in logItems) {
-            if (id > maxId) {
-                maxId = id;
-            }
-        }
-        maxId++;
-    }
+    maxId = logItems.length;
     displayTable();
 
     let freq = window.localStorage.getItem('my-freq');
@@ -231,11 +222,8 @@ function displayTable() {
     const tbody = document.getElementById('logTable').querySelector('tbody');
     tbody.innerHTML = '';
 
-    let reversed = [];
-    for (const id in logItems) {
-        reversed[id] = logItems[id];
-    }
-    reversed = reversed.reverse();
+    let reversed = JSON.parse(JSON.stringify(logItems));
+    reversed.reverse();
     let itemCount = 0;
     for (const id in reversed) {
         const log = reversed[id];
@@ -264,20 +252,32 @@ function displayTable() {
 }
 
 function enableEdit(row, id) {
+    id = parseInt(id);
     let options = [];
+    let qsoId = -1;
     myModal = new bootstrap.Modal(document.getElementById('myModal'), options);
+    for (const arrayId in logItems) {
+        if (logItems[arrayId] === null) {
+            continue;
+        }
 
-    document.getElementById('editQsoDate').value = logItems[id].qsodate;
-    document.getElementById('editQsoTime').value = logItems[id].qsoTime;
-    document.getElementById('editCallsign').value = logItems[id].callsign;
-    document.getElementById('editMode').value = logItems[id].mode;
-    document.getElementById('editBand').value = logItems[id].band;
-    if (document.getElementById('js-show-freq').checked) {
-        document.getElementById('editFreq').value = logItems[id].freq;
+        const qso = logItems[arrayId];
+        if (qso['id'] === id) {
+            qsoId = arrayId;
+        }
     }
-    document.getElementById('editRSTS').value = logItems[id].rst_s;
-    document.getElementById('editRSTR').value = logItems[id].rst_r;
-    document.getElementById('editSotaWff').value = logItems[id].sotaWff;
+
+    document.getElementById('editQsoDate').value = logItems[qsoId].qsodate;
+    document.getElementById('editQsoTime').value = logItems[qsoId].qsoTime;
+    document.getElementById('editCallsign').value = logItems[qsoId].callsign;
+    document.getElementById('editMode').value = logItems[qsoId].mode;
+    document.getElementById('editBand').value = logItems[qsoId].band;
+    if (document.getElementById('js-show-freq').checked) {
+        document.getElementById('editFreq').value = logItems[qsoId].freq;
+    }
+    document.getElementById('editRSTS').value = logItems[qsoId].rst_s;
+    document.getElementById('editRSTR').value = logItems[qsoId].rst_r;
+    document.getElementById('editSotaWff').value = logItems[qsoId].sotaWff;
 
     document.getElementById('js-delete-qso').setAttribute('data-id', id);
     document.getElementById('js-save-qso').setAttribute('data-id', id);
@@ -285,7 +285,17 @@ function enableEdit(row, id) {
 }
 
 function deleteItem(id) {
-    delete logItems[id];
+    id = parseInt(id);
+    for (const arrayId in logItems) {
+        if (logItems[arrayId] === null) {
+            continue;
+        }
+        if (logItems[arrayId]['id'] === id) {
+            delete logItems[arrayId];
+            break;
+        }
+    }
+    // delete logItems[id];
     document.querySelector(`tr[data-id="${id}"]`).remove();
 }
 
