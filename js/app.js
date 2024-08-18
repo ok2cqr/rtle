@@ -379,6 +379,7 @@ function getFullReport(rst, mode) {
 }
 
 function checkSettings() {
+    let errorMessages = [];
     let messages = 'Status: <br>';
     if (
         (window.localStorage.getItem('show-grid') === 'true') &&
@@ -390,18 +391,21 @@ function checkSettings() {
     }
 
     if (document.getElementById('my-sota-wwff').value.length === 0) {
-        console.log('Enter WWFF/SOTA');
+        console.log('Enter the WWFF/SOTA');
         messages += '<span class="text-danger">Enter WWFF/SOTA</span><br>';
+        errorMessages.push('Enter the WWFF/SOTA');
     }
 
     if (document.getElementById('my-call').value.length === 0) {
-        console.log('Enter your call');
+        console.log('Enter your callsign on the Settings tab');
         messages += '<span class="text-danger">Enter your callsign on the Settings tab</Settuu></span><br>';
+        errorMessages.push('Enter your callsign on the Settings tab');
     }
 
     if (document.getElementById('operator').value.length === 0) {
-        console.log('Enter your operator');
+        console.log('Enter your operator callsign on the Settings tab');
         messages += '<span class="text-danger">Enter operator callsign on the Settings tab</Settuu></span><br>';
+        errorMessages.push('Enter your operator callsign on the Settings tab');
     }
 
     if (document.getElementById('my-power').value.length === 0) {
@@ -410,6 +414,8 @@ function checkSettings() {
     }
 
     document.getElementById('js-status-message').innerHTML = messages;
+
+    return errorMessages;
 }
 
 function getBandFromFreq(freq) {
@@ -472,6 +478,111 @@ function loadAllQSO() {
 function saveAllQSO() {
     localStorage.setItem('logItems', JSON.stringify(logItems));
 }
+
+function exportLog() {
+    let myCall = document.getElementById('my-call').value;
+    let operator = document.getElementById('operator').value.toUpperCase();
+    let power = document.getElementById('my-power').value;
+    let grid = document.getElementById('my-grid').value.toUpperCase();
+    let mySotaWwff = document.getElementById('my-sota-wwff').value.toUpperCase();
+
+    let adifData = `
+ADIF export from Real-time log entry by Petr, OK2CQR
+
+Internet: https://rtle.ok2cqr.com
+
+<ADIF_VER:5>2.2.1
+<PROGRAMID:4>RTLE
+<PROGRAMVERSION:5>0.0.1
+<EOH>
+
+`;
+    logItems.forEach(function(line) {
+        let qso = getAdifTag('QSO_DATE', line['qsodate'].replace("-", "").replace("-", ""));
+        qso += getAdifTag('TIME_ON', line['qsoTime'].replace(":", ""));
+        qso += getAdifTag('CALL', line['callsign']);
+        qso += getAdifTag('BAND', line['band']);
+
+        if (document.getElementById('js-show-freq').checked && line['freq']) {
+            qso += getAdifTag('FREQ', line['freq']);
+        }
+
+        qso += getAdifTag('MODE', line['mode']);
+        qso += getAdifTag('RST_SENT', line['rst_s']);
+        qso += getAdifTag('RST_RCVD', line['rst_r']);
+        qso += getAdifTag('OPERATOR', operator);
+        qso += getAdifTag("STATION_CALLSIGN", myCall);
+
+        let sotaWwff = line['sotaWff'];
+        if (sotaWwff) {
+            sotaWwff = sotaWwff.toUpperCase();
+            if (isSOTA(sotaWwff)) {
+                qso += getAdifTag("SOTA_REF", sotaWwff);
+            } else if (isWWFF(sotaWwff)) {
+                qso += getAdifTag("SIG", "WWFF");
+                qso += getAdifTag("SIG_INFO", sotaWwff);
+            }
+        }
+
+        if (power) {
+            qso += getAdifTag('TX_PWR', power);
+        }
+
+        if (grid) {
+            qso += getAdifTag('MY_GRIDSQUARE', grid);
+        }
+
+        if (isSOTA(mySotaWwff)) {
+            qso += getAdifTag("MY_SOTA_REF", mySotaWwff);
+        } else if (isWWFF(mySotaWwff)) {
+            qso += getAdifTag("MY_SIG", "WWFF");
+            qso += getAdifTag("MY_SIG_INFO", mySotaWwff);
+
+        }
+
+        adifData += qso + "<EOR> \n";
+    });
+
+    let qsoDate = getUtcDate().replace("-", "").replace("-", "");
+    const filename =
+        operator.replace("/", "-") +
+        "_" +
+        mySotaWwff.replace("/", "-") +
+        "_" +
+        qsoDate +
+        ".adi";
+    console.log(filename, adifData);
+    download(filename, adifData);
+}
+
+function getAdifTag(tagName, value) {
+    return "<" + tagName + ":" + value.length + ">" + value + " ";
+}
+
+function isSOTA(value) {
+    return !!value.match(/^[A-Z]*[A-Z]\/[A-Z]{2}-\d{3}$/);
+}
+
+function isWWFF(value) {
+    return !!value.match(/^[A-Z]*[F]{2}-\d{4}$/);
+}
+
+function download(filename, text) {
+    let element = document.createElement("a");
+    element.setAttribute(
+        "href",
+        "data:text/plain;charset=utf-8," + encodeURIComponent(text)
+    );
+    element.setAttribute("download", filename);
+
+    element.style.display = "none";
+    document.body.appendChild(element);
+
+    element.click();
+
+    document.body.removeChild(element);
+}
+
 
 /////////////////////////////// Listeners
 
@@ -593,5 +704,15 @@ function setListeners() {
 
             document.getElementById("js-qso-data").focus();
         }
+    });
+
+    document.getElementById('js-export-log-button').addEventListener('click', function() {
+        let errorMessages = checkSettings();
+        if (errorMessages.length > 0) {
+            alert("Please fill in all required fields!"  + "\n\n" + errorMessages.join("\n"));
+
+            return;
+        }
+        exportLog();
     });
 }
