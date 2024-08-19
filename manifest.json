@@ -1,0 +1,7 @@
+{
+  "name": "Real-time log entry",
+  "short_name": "RTLE",
+  "lang": "en-US",
+  "start_url": "/index.html",
+  "display": "standalone"
+}
