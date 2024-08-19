@@ -98,7 +98,7 @@ function loadSavedConfiguration() {
 
     let showGrid = window.localStorage.getItem('show-grid');
     if (showGrid === null) {
-        showGrid = 'true';
+        showGrid = 'false';
     }
     document.getElementById('js-show-grid').checked = showGrid === 'true';
     document.getElementById('js-show-grid').dispatchEvent(new Event('change'));
