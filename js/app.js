@@ -6,7 +6,7 @@ window.onload = () => {
     "use strict";
 
     if ("serviceWorker" in navigator && document.URL.split(":")[0] !== "file") {
-        navigator.serviceWorker.register("./offline.js");
+        navigator.serviceWorker.register("./offline.js?v=202408191721");
     }
 }
 
