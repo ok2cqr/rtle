@@ -193,11 +193,15 @@ function parseQsoData(qsoData) {
         setBand(band);
         freq = getFreqFromBandMode(band, mode);
         document.getElementById('my-freq').value = freq;
+
+        document.getElementById('js-clear-button').dispatchEvent(new Event('click'));
     }
 
     if (freq > 0) {
         document.getElementById('my-freq').value = freq;
         document.getElementById('my-freq').dispatchEvent(new Event('blur'));
+
+        document.getElementById('js-clear-button').dispatchEvent(new Event('click'));
     }
 
     if (callsign) {
