@@ -6,13 +6,13 @@ window.onload = () => {
     "use strict";
 
     if ("serviceWorker" in navigator && document.URL.split(":")[0] !== "file") {
-        navigator.serviceWorker.register("/offline.js?v=202408191823");
+        navigator.serviceWorker.register("/offline.js?v=202409011648");
     }
 }
 
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', function() {
-        navigator.serviceWorker.register('/offline.js?v=202408191823"').then((function(registration) {
+        navigator.serviceWorker.register('/offline.js?v=202409011648"').then((function(registration) {
             console.log('ServiceWorker registration successful with scope: ', registration.scope);
         }), function(err) {
             console.log('ServiceWorker registration failed: ', err);

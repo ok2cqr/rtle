@@ -12,9 +12,9 @@ let filesToCache = [
     "/favicon-16x16.png",
     "/site.webmanifest",
     "/safari-pinned-tab.svg",
-    "/css/style.css?v=202408191823",
-    "/js/app.js?v=202408191823",
-    "/offline.js?v=202408191823",
+    "/css/style.css?v=202409011648",
+    "/js/app.js?v=202409011648",
+    "/offline.js?v=202409011648",
 ]
 
 self.addEventListener("install", function(e) {
