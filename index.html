@@ -6,7 +6,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <link href="/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="/css/style.css?v=202409211610" class="rel">
+    <link rel="stylesheet" href="/css/style.css?v=202409211653" class="rel">
 
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
@@ -134,11 +134,12 @@
                                 </button>
                             </div>
                         </div>
-                        <div class="row mb-4">
+                        <div class="row" id="js-visible-help">
                             <div class="col">
                                 <div class="form-text">Enter a callsign, reports and/or a reference number e.g. OK2CQR 5 OKFF-3029 separated by space, press <strong>Enter to save</strong> the QSO</div>
                             </div>
                         </div>
+                        <div class="mb-4"></div>
                         <div class="row">
                             <table class="table table-striped" id="logTable" style="font-size: small;">
                                 <thead>
@@ -228,6 +229,16 @@
                             <input class="form-check-input" type="checkbox" value="" id="js-show-freq">
                             <label class="form-check-label" for="js-show-freq">
                                 Show Freq field
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                <div class="row mt-4">
+                    <div class="col">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" value="" id="js-show-help">
+                            <label class="form-check-label" for="js-show-help">
+                                Show the brief usage guide below the QSO entry field
                             </label>
                         </div>
                     </div>
@@ -356,6 +367,9 @@
                             <li><span class="text-primary text-monospace">new:</span>
                                 QSO count added to the ADIF header
                             </li>
+                            <li><span class="text-primary text-monospace">new:</span>
+                                You can disable the brief usage guide below the QSO entry field
+                            </li>
                         </ul>
                     </div>
                 </div>
@@ -483,7 +497,7 @@
     </footer>
     <script src="/js/bootstrap.bundle.min.js"></script>
     <script src="/js/theme-toggle.js"></script>
-    <script src="/js/app.js?v=202409211610"></script>
+    <script src="/js/app.js?v=202409211653"></script>
 </body>
 
 </html>

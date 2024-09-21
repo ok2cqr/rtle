@@ -6,13 +6,13 @@ window.onload = () => {
     "use strict";
 
     if ("serviceWorker" in navigator && document.URL.split(":")[0] !== "file") {
-        navigator.serviceWorker.register("/offline.js?v=202409211610");
+        navigator.serviceWorker.register("/offline.js?v=202409211653");
     }
 }
 
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', function() {
-        navigator.serviceWorker.register('/offline.js?v=202409211610"').then((function(registration) {
+        navigator.serviceWorker.register('/offline.js?v=202409211653"').then((function(registration) {
             console.log('ServiceWorker registration successful with scope: ', registration.scope);
         }), function(err) {
             console.log('ServiceWorker registration failed: ', err);
@@ -132,6 +132,13 @@ function loadSavedConfiguration() {
     document.getElementById('operator').value = window.localStorage.getItem('operator');
     document.getElementById('my-power').value = window.localStorage.getItem('my-power');
     document.getElementById('my-grid').value = window.localStorage.getItem('my-grid');
+
+    let showHelp = window.localStorage.getItem('show-help');
+    if (showHelp === null) {
+        showHelp = 'true';
+    }
+    document.getElementById('js-show-help').checked = showHelp === 'true';
+    document.getElementById('js-show-help').dispatchEvent(new Event('change'));
 }
 
 function parseQsoData(qsoData) {
@@ -736,4 +743,19 @@ function setListeners() {
         }
         exportLog();
     });
+
+    document.getElementById('js-show-help').addEventListener('change', function() {
+        if (this.checked) {
+            if (document.getElementById('js-visible-help').classList.contains('d-none')) {
+                document.getElementById('js-visible-help').classList.remove('d-none');
+            }
+        } else {
+            if (!document.getElementById('js-visible-help').classList.contains('d-none')) {
+                document.getElementById('js-visible-help').classList.add('d-none');
+            }
+        }
+
+        window.localStorage.setItem('show-help', this.checked);
+    });
+
 }
