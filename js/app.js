@@ -6,13 +6,13 @@ window.onload = () => {
     "use strict";
 
     if ("serviceWorker" in navigator && document.URL.split(":")[0] !== "file") {
-        navigator.serviceWorker.register("/offline.js?v=202409211653");
+        navigator.serviceWorker.register("/offline.js?v=202409211708");
     }
 }
 
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', function() {
-        navigator.serviceWorker.register('/offline.js?v=202409211653"').then((function(registration) {
+        navigator.serviceWorker.register('/offline.js?v=202409211708"').then((function(registration) {
             console.log('ServiceWorker registration successful with scope: ', registration.scope);
         }), function(err) {
             console.log('ServiceWorker registration failed: ', err);
@@ -526,6 +526,9 @@ ${qsoCount}
 
 `;
     logItems.forEach(function(line) {
+        if (line === null) {
+            return;
+        }
         let qso = getAdifTag('QSO_DATE', line['qsodate'].replace("-", "").replace("-", ""));
         qso += getAdifTag('TIME_ON', line['qsoTime'].replace(":", ""));
         qso += getAdifTag('CALL', line['callsign']);
