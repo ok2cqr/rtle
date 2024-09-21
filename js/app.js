@@ -6,13 +6,13 @@ window.onload = () => {
     "use strict";
 
     if ("serviceWorker" in navigator && document.URL.split(":")[0] !== "file") {
-        navigator.serviceWorker.register("/offline.js?v=202409011648");
+        navigator.serviceWorker.register("/offline.js?v=202409211610");
     }
 }
 
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', function() {
-        navigator.serviceWorker.register('/offline.js?v=202409011648"').then((function(registration) {
+        navigator.serviceWorker.register('/offline.js?v=202409211610"').then((function(registration) {
             console.log('ServiceWorker registration successful with scope: ', registration.scope);
         }), function(err) {
             console.log('ServiceWorker registration failed: ', err);
@@ -505,7 +505,7 @@ function exportLog() {
     let power = document.getElementById('my-power').value;
     let grid = document.getElementById('my-grid').value.toUpperCase();
     let mySotaWwff = document.getElementById('my-sota-wwff').value.toUpperCase();
-
+    let qsoCount = getAdifTag('QSO_COUNT', logItems.length.toString());
     let adifData = `
 ADIF export from Real-time log entry by Petr, OK2CQR
 
@@ -513,7 +513,8 @@ Internet: https://rtle.ok2cqr.com
 
 <ADIF_VER:5>2.2.1
 <PROGRAMID:4>RTLE
-<PROGRAMVERSION:5>0.0.1
+<PROGRAMVERSION:5>0.0.2
+${qsoCount}
 <EOH>
 
 `;
