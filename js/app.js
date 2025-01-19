@@ -2,17 +2,18 @@ window.onload = () => {
     showTime();
     setListeners();
     loadSavedConfiguration();
+    loadStationNames();
 
     "use strict";
 
     if ("serviceWorker" in navigator && document.URL.split(":")[0] !== "file") {
-        navigator.serviceWorker.register("/offline.js?v=202409211708");
+        navigator.serviceWorker.register("/offline.js?v=202501191623");
     }
 }
 
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', function() {
-        navigator.serviceWorker.register('/offline.js?v=202409211708"').then((function(registration) {
+        navigator.serviceWorker.register('/offline.js?v=202501191623"').then((function(registration) {
             console.log('ServiceWorker registration successful with scope: ', registration.scope);
         }), function(err) {
             console.log('ServiceWorker registration failed: ', err);
@@ -23,6 +24,7 @@ if ('serviceWorker' in navigator) {
 let logItems = [];
 let myModal;
 let maxId = 0;
+let stationNames = [];
 
 const Bands = {
     b160M: {
@@ -139,6 +141,41 @@ function loadSavedConfiguration() {
     }
     document.getElementById('js-show-help').checked = showHelp === 'true';
     document.getElementById('js-show-help').dispatchEvent(new Event('change'));
+
+    let showStationNames = window.localStorage.getItem('show-station-names');
+    if (showStationNames === null) {
+        showStationNames = 'false';
+    }
+    document.getElementById('js-show-station-names').checked = showStationNames === 'true';
+    document.getElementById('js-show-station-names').dispatchEvent(new Event('change'));
+}
+
+function loadStationNames() {
+    if ('true' !== window.localStorage.getItem('show-station-names')) {
+        console.warn('Show station names is not enabled');
+        return;
+    }
+
+    let data = window.localStorage.getItem('station-names-data');
+    if (data === null) {
+        console.warn('No station names found');
+        return;
+    }
+
+    let formattedDate = window.localStorage.getItem('station-names-last-updated');
+    document.getElementById('js-station-last-downloaded-info').innerHTML = '(Last update: ' + formattedDate + ')';
+
+    stationNames = data
+        .trim()
+        .split('\n')
+        .reduce((acc, line) => {
+            const [key, value] = line.split(',');
+            acc[key] = value; // Add the key-value pair to the accumulator object
+            return acc;
+        }, {});
+
+    const stationCount = Object.keys(stationNames).length;
+    console.info('Station names loaded - ' + stationCount.toString());
 }
 
 function parseQsoData(qsoData) {
@@ -146,6 +183,7 @@ function parseQsoData(qsoData) {
     let text = document.getElementById('js-qso-data').value;
     let freq = document.getElementById('my-freq').value;
     let band = document.getElementById('my-band').options[document.getElementById('my-band').selectedIndex].text;
+    let stationName = document.getElementById('js-station-name').innerText;
 
     let sotaWff = '';
     let callsign = '';
@@ -222,7 +260,8 @@ function parseQsoData(qsoData) {
             "freq": freq,
             "rst_s": rst_s,
             "rst_r": rst_r,
-            "sotaWff": sotaWff
+            "sotaWff": sotaWff,
+            "name": stationName,
         };
         maxId++;
 
@@ -238,6 +277,7 @@ function parseQsoData(qsoData) {
             'RST_S:', rst_s, "\n",
             'RST_R:', rst_r, "\n",
             'WWFF:', sotaWff, "\n",
+            'Name:', stationName, "\n",
         );
 
         document.getElementById('js-clear-button').dispatchEvent(new Event('click'));
@@ -305,6 +345,11 @@ function enableEdit(row, id) {
     }
     document.getElementById('editRSTS').value = logItems[qsoId].rst_s;
     document.getElementById('editRSTR').value = logItems[qsoId].rst_r;
+
+    if (logItems[qsoId].name !== undefined) {
+        document.getElementById('editName').value = logItems[qsoId].name;
+    }
+
     document.getElementById('editSotaWff').value = logItems[qsoId].sotaWff;
 
     document.getElementById('js-delete-qso').setAttribute('data-id', id);
@@ -337,6 +382,7 @@ function editItem(id) {
     log.freq = document.getElementById('editFreq').value;
     log.rst_s = document.getElementById('editRSTS').value;
     log.rst_r = document.getElementById('editRSTR').value;
+    log.name = document.getElementById('editName').value;
     log.sotaWff = document.getElementById('editSotaWff').value;
 
     displayTable();
@@ -544,6 +590,10 @@ ${qsoCount}
         qso += getAdifTag('OPERATOR', operator);
         qso += getAdifTag("STATION_CALLSIGN", myCall);
 
+        if (line['name'] !== undefined) {
+            qso += getAdifTag("NAME", line['name']);
+        }
+
         let sotaWwff = line['sotaWff'];
         if (sotaWwff) {
             sotaWwff = sotaWwff.toUpperCase();
@@ -612,6 +662,21 @@ function download(filename, text) {
     element.click();
 
     document.body.removeChild(element);
+}
+
+function searchStationName(station) {
+    if ('true' !== window.localStorage.getItem('show-station-names')) {
+        return;
+    }
+
+    station = station.toUpperCase();
+    let callsignParts = station.trim().split("/");
+
+    const longestPart = callsignParts.reduce((longest, current) => {
+        return current.length > longest.length ? current : longest;
+    }, "");
+
+    document.getElementById('js-station-name').innerText = stationNames[longestPart] || "";
 }
 
 
@@ -691,6 +756,7 @@ function setListeners() {
 
     document.getElementById('js-clear-button').addEventListener('click', function() {
         document.getElementById('js-qso-data').value = '';
+        document.getElementById('js-station-name').innerText = '';
         document.getElementById('js-qso-data').focus();
     });
 
@@ -700,6 +766,12 @@ function setListeners() {
             event.preventDefault();
         }
     });
+
+    document.getElementById('js-qso-data').addEventListener('keyup', function(event) {
+        if (this.value.length > 2) {
+            searchStationName(this.value);
+        }
+    })
 
     document.getElementById('my-sota-wwff').addEventListener('blur', function() {
         window.localStorage.setItem('my-sota-wwff', this.value);
@@ -761,4 +833,47 @@ function setListeners() {
         window.localStorage.setItem('show-help', this.checked);
     });
 
+
+    document.getElementById('js-show-station-names').addEventListener('change', function() {
+        let downloadInfo = '';
+
+        if (this.checked) {
+            let lastUpdate = window.localStorage.getItem('names-last-updated');
+            if (lastUpdate === null) {
+                downloadInfo = '<span class="text-warning">Station names has never been updated</span>';
+            } else {
+                downloadInfo = "Station list updated at " + lastUpdate;
+            }
+        } else {
+            downloadInfo = '';
+        }
+
+        document.getElementById('js-station-last-downloaded-info').innerHTML = downloadInfo;
+        window.localStorage.setItem('show-station-names', this.checked);
+    });
+
+    document.getElementById('js-btn-download-stations').addEventListener('click', function() {
+        fetch('https://rtle.ok2cqr.com/data/stations.csv')
+            .then(response => {
+                if (!response.ok) {
+                    document.getElementById('js-station-last-downloaded-info').innerHTML = '<span class="text-danger">File could not been downloaded: ' + response.status + ' </span>';
+                }
+
+                return response.text();
+            })
+            .then(data => {
+                const now = new Date();
+                const isoString = now.toISOString();
+                const formattedDate = isoString.replace('T', ' ').substring(0, 19);
+
+                window.localStorage.setItem('station-names-data', data);
+                window.localStorage.setItem('station-names-last-updated', formattedDate);
+
+                document.getElementById('js-station-last-downloaded-info').innerHTML = 'Download OK <br>(Last update: ' + formattedDate + ')';
+                loadStationNames();
+            })
+            .catch(error => {
+                document.getElementById('js-station-last-downloaded-info').innerHTML = '<span class="text-danger">File could not been downloaded: ' + error + ' </span>';
+            });
+    });
 }

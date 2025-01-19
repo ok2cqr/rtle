@@ -6,7 +6,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <link href="/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="/css/style.css?v=202409211708" class="rel">
+    <link rel="stylesheet" href="/css/style.css?v=202501191623" class="rel">
 
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
@@ -134,6 +134,9 @@
                                 </button>
                             </div>
                         </div>
+                        <div class="row">
+                            <div class="col mt-1" id="js-station-name"></div>
+                        </div>
                         <div class="row" id="js-visible-help">
                             <div class="col">
                                 <div class="form-text">Enter a callsign, reports and/or a reference number e.g. OK2CQR 5 OKFF-3029 separated by space, press <strong>Enter to save</strong> the QSO</div>
@@ -241,6 +244,32 @@
                                 Show the brief usage guide below the QSO entry field
                             </label>
                         </div>
+                    </div>
+                </div>
+                <div class="row mt-4">
+                    <div class="col fw-bold">
+                        Station names
+                    </div>
+                </div>
+                <div class="row mt-4">
+                    <div class="col">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" value="" id="js-show-station-names">
+                            <label class="form-check-label" for="js-show-station-names">
+                                Show station names
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                <div class="row mt-2 mx-1">
+                    <div class="col">
+                        <button class="btn btn-primary" id="js-btn-download-stations">
+                            Download station names
+                        </button>
+                    </div>
+                </div>
+                <div class="row mt-2 mx-1">
+                    <div class="col text-muted" id="js-station-last-downloaded-info">
                     </div>
                 </div>
                 <div class="row mt-4">
@@ -362,6 +391,17 @@
                 </div>
                 <div class="row">
                     <div class="col offset-sm-1">
+                        <strong>2025-01-19</strong>
+                        <ul class="mt-1">
+                            <li><span class="text-primary text-monospace">new:</span>
+                                Callsign name search added, must be enabled in Settings tab,
+                                this feature is disabled by default. Existing names are also exported to the ADIF file.
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col offset-sm-1">
                         <strong>2024-09-21</strong>
                         <ul class="mt-1">
                             <li><span class="text-primary text-monospace">new:</span>
@@ -472,6 +512,10 @@
                                     <input type="text" class="form-control text-uppercase" id="editRSTR">
                                 </div>
                                 <div class="mb-3">
+                                    <label for="editName" class="form-label">Name</label>
+                                    <input type="text" class="form-control" id="editName">
+                                </div>
+                                <div class="mb-3">
                                     <label for="editSotaWff" class="form-label">SOTA/WFF</label>
                                     <input type="text" class="form-control text-uppercase" id="editSotaWff">
                                 </div>
@@ -503,7 +547,7 @@
     </footer>
     <script src="/js/bootstrap.bundle.min.js"></script>
     <script src="/js/theme-toggle.js"></script>
-    <script src="/js/app.js?v=202409211708"></script>
+    <script src="/js/app.js?v=202501191623"></script>
 </body>
 
 </html>
