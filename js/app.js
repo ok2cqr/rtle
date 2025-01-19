@@ -588,7 +588,7 @@ ${qsoCount}
         qso += getAdifTag('RST_SENT', line['rst_s']);
         qso += getAdifTag('RST_RCVD', line['rst_r']);
         qso += getAdifTag('OPERATOR', operator);
-        qso += getAdifTag("STATION_CALLSIGN", myCall);
+        qso += getAdifTag("STATION_CALLSIGN", myCall.toUpperCase());
 
         if (line['name'] !== undefined) {
             qso += getAdifTag("NAME", line['name']);
