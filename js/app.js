@@ -7,13 +7,13 @@ window.onload = () => {
     "use strict";
 
     if ("serviceWorker" in navigator && document.URL.split(":")[0] !== "file") {
-        navigator.serviceWorker.register("/offline.js?v=202501191623");
+        navigator.serviceWorker.register("/offline.js?v=202503192154");
     }
 }
 
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', function() {
-        navigator.serviceWorker.register('/offline.js?v=202501191623"').then((function(registration) {
+        navigator.serviceWorker.register('/offline.js?v=202503192154"').then((function(registration) {
             console.log('ServiceWorker registration successful with scope: ', registration.scope);
         }), function(err) {
             console.log('ServiceWorker registration failed: ', err);
@@ -670,6 +670,11 @@ function searchStationName(station) {
     }
 
     station = station.toUpperCase();
+    if (station.includes(' ')) {
+        const stationParts = station.trim().split(' ');
+        station = stationParts[0];
+    }
+
     let callsignParts = station.trim().split("/");
 
     const longestPart = callsignParts.reduce((longest, current) => {
