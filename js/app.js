@@ -7,13 +7,13 @@ window.onload = () => {
     "use strict";
 
     if ("serviceWorker" in navigator && document.URL.split(":")[0] !== "file") {
-        navigator.serviceWorker.register("/offline.js?v=202503192154");
+        navigator.serviceWorker.register("/offline.js?v=202503081834");
     }
 }
 
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', function() {
-        navigator.serviceWorker.register('/offline.js?v=202503192154"').then((function(registration) {
+        navigator.serviceWorker.register('/offline.js?v=202503081834"').then((function(registration) {
             console.log('ServiceWorker registration successful with scope: ', registration.scope);
         }), function(err) {
             console.log('ServiceWorker registration failed: ', err);
@@ -201,6 +201,20 @@ function parseQsoData(qsoData) {
         if (item === '') {
             return;
         }
+
+        // You can use a dot (.) instead of a slash (/) because the slash is only available
+        // on mobile keyboards when switching to the symbols' layout. This can be annoying,
+        // especially when many stations are calling.
+        if (!item.match(/^\d+\.\d+$/)) {
+            if (itemNumber === 0) {
+                //callsign
+                item = item.replace('.', '/');
+            } else {
+                //WWFF/SOTA
+                item = item.replace('.', '-');
+            }
+        }
+
         if (item.match(/^CW$|^SSB$|^FM$|^AM$|^PSK$|^FT8$/i)) {
             mode = item.toUpperCase();
         } else if (item.match(/^[1-9]?\d\d[Mm]$/) || item.toUpperCase() === '70CM') {
