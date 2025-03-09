@@ -7,16 +7,19 @@ window.onload = () => {
     "use strict";
 
     if ("serviceWorker" in navigator && document.URL.split(":")[0] !== "file") {
-        navigator.serviceWorker.register("/offline.js?v=202503081834");
+        navigator.serviceWorker.register("/offline.js?v=202503091131");
     }
 }
 
-if ('serviceWorker' in navigator) {
-    window.addEventListener('load', function() {
-        navigator.serviceWorker.register('/offline.js?v=202503081834"').then((function(registration) {
-            console.log('ServiceWorker registration successful with scope: ', registration.scope);
-        }), function(err) {
-            console.log('ServiceWorker registration failed: ', err);
+if ("serviceWorker" in navigator) {
+    navigator.serviceWorker.register("/offline.js?v=202503091131").then((registration) => {
+        registration.addEventListener("updatefound", () => {
+            const newWorker = registration.installing;
+            newWorker.addEventListener("statechange", () => {
+                if (newWorker.state === "installed" && navigator.serviceWorker.controller) {
+                    window.location.reload();
+                }
+            });
         });
     });
 }
