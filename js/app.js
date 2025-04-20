@@ -212,12 +212,18 @@ function parseQsoData(qsoData) {
         // on mobile keyboards when switching to the symbols' layout. This can be annoying,
         // especially when many stations are calling.
         if (!item.match(/^\d+\.\d+$/)) {
-            if (itemNumber === 0) {
-                //callsign
+            if (itemNumber === 0) { //callsign
                 item = item.replace('.', '/');
             } else {
-                //WWFF/SOTA
-                item = item.replace('.', '-');
+                let dotsCount = (item.match(/\./g) || []).length;
+                if (dotsCount === 1) { //WWFF
+                    item = item.replace('.', '-');
+                } else { //SOTA or GMA - OK/ST-101
+                    const parts = item.split('.');
+                    if (parts.length > 2) {
+                        item = parts[0] + '/' + parts[1] + '-' + parts.slice(2).join('.');
+                    }
+                }
             }
         }
 
