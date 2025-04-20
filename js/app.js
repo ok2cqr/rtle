@@ -182,10 +182,12 @@ function loadStationNames() {
 }
 
 function parseQsoData(qsoData) {
-    let mode = document.getElementById('my-mode').value;
     let text = document.getElementById('js-qso-data').value;
-    let freq = document.getElementById('my-freq').value;
-    let band = document.getElementById('my-band').options[document.getElementById('my-band').selectedIndex].text;
+
+    let mode = '';
+    let freq = 0
+    let band = '';
+
     let stationName = document.getElementById('js-station-name').innerText;
 
     let sotaWff = '';
@@ -250,7 +252,10 @@ function parseQsoData(qsoData) {
     rst_s = getFullReport(rst_s, mode);
     rst_r = getFullReport(rst_r, mode);
 
-    document.getElementById('my-mode').value = mode;
+    if (mode) {
+        document.getElementById('my-mode').value = mode;
+        document.getElementById('js-clear-button').dispatchEvent(new Event('click'));
+    }
     if (band) {
         setBand(band);
         freq = getFreqFromBandMode(band, mode);
@@ -272,9 +277,9 @@ function parseQsoData(qsoData) {
             "qsodate": qsoDate,
             "qsoTime": qsoTime,
             "callsign": callsign,
-            "mode": mode,
-            "band": band,
-            "freq": freq,
+            "mode": getMyMode(),
+            "band": getMyBand(),
+            "freq": getMyFreq(),
             "rst_s": rst_s,
             "rst_r": rst_r,
             "sotaWff": sotaWff,
@@ -288,9 +293,9 @@ function parseQsoData(qsoData) {
             'QSODATE:', qsoDate, "\n",
             'QSOTime:', qsoTime, "\n",
             'Call:', callsign, "\n",
-            'Mode:', mode, "\n",
-            'Band:', band, "\n",
-            'Freq:', freq, "\n",
+            'Mode:', getMyMode(), "\n",
+            'Band:', getMyBand(), "\n",
+            'Freq:', getMyFreq(), "\n",
             'RST_S:', rst_s, "\n",
             'RST_R:', rst_r, "\n",
             'WWFF:', sotaWff, "\n",
@@ -408,6 +413,18 @@ function editItem(id) {
 function setBandSelectBoxByFreq(freq) {
     let band = getBandFromFreq(freq);
     setBand(band);
+}
+
+function getMyBand() {
+    return document.getElementById('my-band').options[document.getElementById('my-band').selectedIndex].text;
+}
+
+function getMyMode() {
+    return document.getElementById('my-mode').value;
+}
+
+function getMyFreq() {
+    return document.getElementById('my-freq').value;
 }
 
 function setBand(band) {
@@ -716,7 +733,7 @@ function setListeners() {
 
     document.getElementById('my-band').addEventListener('change', function() {
         if (this.value !== '') {
-            let freq = getFreqFromBandMode(this.value, document.getElementById('my-mode').value);
+            let freq = getFreqFromBandMode(this.value, getMyMode());
             document.getElementById('my-freq').value = freq;
 
             window.localStorage.setItem('my-freq', freq);
