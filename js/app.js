@@ -100,6 +100,7 @@ const Bands = {
 
 function loadSavedConfiguration() {
     logItems = loadAllQSO();
+    console.log(logItems);
     maxId = logItems.length;
     displayTable();
 
@@ -592,7 +593,7 @@ function exportLog() {
     let power = document.getElementById('my-power').value;
     let grid = document.getElementById('my-grid').value.toUpperCase();
     let mySotaWwff = document.getElementById('my-sota-wwff').value.toUpperCase();
-    let qsoCount = getAdifTag('QSO_COUNT', logItems.length.toString());
+    let qsoCount = getAdifTag('QSO_COUNT', getQSOCount().toString());
     let adifData = `
 ADIF export from Real-time log entry by Petr, OK2CQR
 
@@ -668,6 +669,23 @@ ${qsoCount}
         ".adi";
     console.log(filename, adifData);
     download(filename, adifData);
+}
+
+function getQSOCount() {
+    let qsoCount = 0;
+    logItems.forEach(function(item) {
+        if (item === null) {
+            return;
+        }
+
+        if (item['id'] === null) {
+            return;
+        }
+
+        qsoCount++;
+    })
+
+    return qsoCount;
 }
 
 function getAdifTag(tagName, value) {
