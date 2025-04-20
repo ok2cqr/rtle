@@ -7,12 +7,12 @@ window.onload = () => {
     "use strict";
 
     if ("serviceWorker" in navigator && document.URL.split(":")[0] !== "file") {
-        navigator.serviceWorker.register("/offline.js?v=202503091131");
+        navigator.serviceWorker.register("/offline.js?v=202504201210");
     }
 }
 
 if ("serviceWorker" in navigator) {
-    navigator.serviceWorker.register("/offline.js?v=202503091131").then((registration) => {
+    navigator.serviceWorker.register("/offline.js?v=202504201210").then((registration) => {
         registration.addEventListener("updatefound", () => {
             const newWorker = registration.installing;
             newWorker.addEventListener("statechange", () => {
@@ -607,7 +607,7 @@ Internet: https://rtle.ok2cqr.com
 
 <ADIF_VER:5>2.2.1
 <PROGRAMID:4>RTLE
-<PROGRAMVERSION:12>202503091131
+<PROGRAMVERSION:12>202504201210
 ${qsoCount}
 <EOH>
 
