@@ -607,7 +607,7 @@ Internet: https://rtle.ok2cqr.com
 
 <ADIF_VER:5>2.2.1
 <PROGRAMID:4>RTLE
-<PROGRAMVERSION:5>0.0.2
+<PROGRAMVERSION:12>202503091131
 ${qsoCount}
 <EOH>
 
