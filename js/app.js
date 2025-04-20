@@ -671,6 +671,10 @@ ${qsoCount}
 }
 
 function getAdifTag(tagName, value) {
+    if (value.length === 0) {
+        return "";
+    }
+
     return "<" + tagName + ":" + value.length + ">" + value + " ";
 }
 
