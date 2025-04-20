@@ -213,7 +213,7 @@ function parseQsoData(qsoData) {
         // especially when many stations are calling.
         if (!item.match(/^\d+\.\d+$/)) {
             if (itemNumber === 0) { //callsign
-                item = item.replace('.', '/');
+                item = item.replaceAll('.', '/');
             } else {
                 let dotsCount = (item.match(/\./g) || []).length;
                 if (dotsCount === 1) { //WWFF
