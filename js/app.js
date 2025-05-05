@@ -7,12 +7,12 @@ window.onload = () => {
     "use strict";
 
     if ("serviceWorker" in navigator && document.URL.split(":")[0] !== "file") {
-        navigator.serviceWorker.register("/offline.js?v=202504201210");
+        navigator.serviceWorker.register("/offline.js?v=202505052050");
     }
 }
 
 if ("serviceWorker" in navigator) {
-    navigator.serviceWorker.register("/offline.js?v=202504201210").then((registration) => {
+    navigator.serviceWorker.register("/offline.js?v=202505052050").then((registration) => {
         registration.addEventListener("updatefound", () => {
             const newWorker = registration.installing;
             newWorker.addEventListener("statechange", () => {
@@ -256,9 +256,6 @@ function parseQsoData(qsoData) {
         itemNumber = itemNumber + 1;
     });
 
-    rst_s = getFullReport(rst_s, mode);
-    rst_r = getFullReport(rst_r, mode);
-
     if (mode) {
         document.getElementById('my-mode').value = mode;
         document.getElementById('js-clear-button').dispatchEvent(new Event('click'));
@@ -277,6 +274,9 @@ function parseQsoData(qsoData) {
 
         document.getElementById('js-clear-button').dispatchEvent(new Event('click'));
     }
+
+    rst_s = getFullReport(rst_s, getMyMode());
+    rst_r = getFullReport(rst_r, getMyMode());
 
     if (callsign) {
         logItems[maxId] = {
@@ -607,7 +607,7 @@ Internet: https://rtle.ok2cqr.com
 
 <ADIF_VER:5>2.2.1
 <PROGRAMID:4>RTLE
-<PROGRAMVERSION:12>202504201210
+<PROGRAMVERSION:12>202505052050
 ${qsoCount}
 <EOH>
 
