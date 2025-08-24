@@ -7,12 +7,12 @@ window.onload = () => {
     "use strict";
 
     if ("serviceWorker" in navigator && document.URL.split(":")[0] !== "file") {
-        navigator.serviceWorker.register("/offline.js?v=202505052050");
+        navigator.serviceWorker.register("/offline.js?v=202508242117");
     }
 }
 
 if ("serviceWorker" in navigator) {
-    navigator.serviceWorker.register("/offline.js?v=202505052050").then((registration) => {
+    navigator.serviceWorker.register("/offline.js?v=202508242117").then((registration) => {
         registration.addEventListener("updatefound", () => {
             const newWorker = registration.installing;
             newWorker.addEventListener("statechange", () => {
@@ -607,7 +607,7 @@ Internet: https://rtle.ok2cqr.com
 
 <ADIF_VER:5>2.2.1
 <PROGRAMID:4>RTLE
-<PROGRAMVERSION:12>202505052050
+<PROGRAMVERSION:12>202508242117
 ${qsoCount}
 <EOH>
 
@@ -643,6 +643,7 @@ ${qsoCount}
             } else if (isWWFF(sotaWwff)) {
                 qso += getAdifTag("SIG", "WWFF");
                 qso += getAdifTag("SIG_INFO", sotaWwff);
+                qso += getAdifTag("WWFF_REF", sotaWwff);
             }
         }
 
@@ -659,7 +660,7 @@ ${qsoCount}
         } else if (isWWFF(mySotaWwff)) {
             qso += getAdifTag("MY_SIG", "WWFF");
             qso += getAdifTag("MY_SIG_INFO", mySotaWwff);
-
+            qso += getAdifTag('MY_WWFF_REF', mySotaWwff);
         }
 
         adifData += qso + "<EOR> \n";
