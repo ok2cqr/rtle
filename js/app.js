@@ -7,12 +7,12 @@ window.onload = () => {
     "use strict";
 
     if ("serviceWorker" in navigator && document.URL.split(":")[0] !== "file") {
-        navigator.serviceWorker.register("/offline.js?v=202609041558");
+        navigator.serviceWorker.register("/offline.js?v=202609041830");
     }
 }
 
 if ("serviceWorker" in navigator) {
-    navigator.serviceWorker.register("/offline.js?v=202609041558").then((registration) => {
+    navigator.serviceWorker.register("/offline.js?v=202609041830").then((registration) => {
         registration.addEventListener("updatefound", () => {
             const newWorker = registration.installing;
             newWorker.addEventListener("statechange", () => {
@@ -216,7 +216,9 @@ function parseQsoData(qsoData) {
                 item = item.replaceAll('.', '/');
             } else {
                 let dotsCount = (item.match(/\./g) || []).length;
-                if (dotsCount === 1) { //WWFF
+                if (item.match(/^B\.[A-Z0-9]{1,4}-\d{4}$/i)) { //BOTA - B/OK-0067, the dot stands for the slash
+                    item = item.replace('.', '/');
+                } else if (dotsCount === 1) { //WWFF
                     item = item.replace('.', '-');
                 } else { //SOTA or GMA - OK/ST-101
                     const parts = item.split('.');
@@ -236,7 +238,7 @@ function parseQsoData(qsoData) {
             freq = item;
             band = '';
         } else if (
-            item.match(/^([A-Z0-9]{1,4}FF-\d{4}|[A-Z0-9]{1,4}\/[A-Z]{2}-\d{3}|[A-Z0-9]{2}R-\d{4})$/i)
+            item.match(/^([A-Z0-9]{1,4}FF-\d{4}|[A-Z0-9]{1,4}\/[A-Z]{2}-\d{3}|[A-Z0-9]{2}R-\d{4}|B\/[A-Z0-9]{1,4}-\d{4})$/i)
         ) {
             sotaWff = item.toUpperCase();
         } else if (
@@ -505,9 +507,9 @@ function checkSettings() {
     }
 
     if (document.getElementById('my-sota-wwff').value.length === 0) {
-        console.log('Enter the WWFF/SOTA/TOTA');
-        messages += '<span class="text-danger">Enter WWFF/SOTA/TOTA</span><br>';
-        errorMessages.push('Enter the WWFF/SOTA/TOTA');
+        console.log('Enter the reference');
+        messages += '<span class="text-danger">Enter the reference</span><br>';
+        errorMessages.push('Enter the reference');
     }
 
     if (document.getElementById('my-call').value.length === 0) {
@@ -607,7 +609,7 @@ Internet: https://rtle.ok2cqr.com
 
 <ADIF_VER:5>2.2.1
 <PROGRAMID:4>RTLE
-<PROGRAMVERSION:12>202609041558
+<PROGRAMVERSION:12>202609041830
 ${qsoCount}
 <EOH>
 
@@ -647,6 +649,9 @@ ${qsoCount}
             } else if (isTOTA(sotaWwff)) {
                 qso += getAdifTag("SIG", "TOTA");
                 qso += getAdifTag("SIG_INFO", sotaWwff);
+            } else if (isBOTA(sotaWwff)) {
+                qso += getAdifTag("SIG", "WWBOTA");
+                qso += getAdifTag("SIG_INFO", sotaWwff);
             }
         }
 
@@ -666,6 +671,9 @@ ${qsoCount}
             qso += getAdifTag('MY_WWFF_REF', mySotaWwff);
         } else if (isTOTA(mySotaWwff)) {
             qso += getAdifTag("MY_SIG", "TOTA");
+            qso += getAdifTag("MY_SIG_INFO", mySotaWwff);
+        } else if (isBOTA(mySotaWwff)) {
+            qso += getAdifTag("MY_SIG", "WWBOTA");
             qso += getAdifTag("MY_SIG_INFO", mySotaWwff);
         }
 
@@ -719,6 +727,10 @@ function isWWFF(value) {
 
 function isTOTA(value) {
     return !!value.match(/^[A-Z0-9]{2}R-\d{4}$/);
+}
+
+function isBOTA(value) {
+    return !!value.match(/^B\/[A-Z0-9]{1,4}-\d{4}$/i);
 }
 
 function download(filename, text) {
