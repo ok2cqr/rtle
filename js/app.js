@@ -7,12 +7,12 @@ window.onload = () => {
     "use strict";
 
     if ("serviceWorker" in navigator && document.URL.split(":")[0] !== "file") {
-        navigator.serviceWorker.register("/offline.js?v=202609041552");
+        navigator.serviceWorker.register("/offline.js?v=202609041558");
     }
 }
 
 if ("serviceWorker" in navigator) {
-    navigator.serviceWorker.register("/offline.js?v=202609041552").then((registration) => {
+    navigator.serviceWorker.register("/offline.js?v=202609041558").then((registration) => {
         registration.addEventListener("updatefound", () => {
             const newWorker = registration.installing;
             newWorker.addEventListener("statechange", () => {
@@ -236,7 +236,7 @@ function parseQsoData(qsoData) {
             freq = item;
             band = '';
         } else if (
-            item.match(/^([A-Z]*[F]{2}-\d{4})|([A-Z]*[A-Z]\/[A-Z]{2}-\d{3})$|^([A-Z0-9]{2}R-\d{4})$/i)
+            item.match(/^([A-Z0-9]{1,4}FF-\d{4}|[A-Z0-9]{1,4}\/[A-Z]{2}-\d{3}|[A-Z0-9]{2}R-\d{4})$/i)
         ) {
             sotaWff = item.toUpperCase();
         } else if (
@@ -607,7 +607,7 @@ Internet: https://rtle.ok2cqr.com
 
 <ADIF_VER:5>2.2.1
 <PROGRAMID:4>RTLE
-<PROGRAMVERSION:12>202609041552
+<PROGRAMVERSION:12>202609041558
 ${qsoCount}
 <EOH>
 
@@ -710,11 +710,11 @@ function getAdifTag(tagName, value) {
 }
 
 function isSOTA(value) {
-    return !!value.match(/^[A-Z]*[A-Z]\/[A-Z]{2}-\d{3}$/);
+    return !!value.match(/^[A-Z0-9]{1,4}\/[A-Z]{2}-\d{3}$/i);
 }
 
 function isWWFF(value) {
-    return !!value.match(/^[A-Z]*[F]{2}-\d{4}$/);
+    return !!value.match(/^[A-Z0-9]{1,4}FF-\d{4}$/i);
 }
 
 function isTOTA(value) {
