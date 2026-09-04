@@ -1,4 +1,4 @@
-const CACHE_NAME = "rtle-202508242117";
+const CACHE_NAME = "rtle-202609041552";
 self.addEventListener("install", (event) => {
     console.log("install", event);
     event.waitUntil(
@@ -16,9 +16,9 @@ self.addEventListener("install", (event) => {
                 "/favicon-16x16.png",
                 "/site.webmanifest",
                 "/safari-pinned-tab.svg",
-                "/css/style.css?v=202508242117",
-                "/js/app.js?v=202508242117",
-                "/offline.js?v=202508242117",
+                "/css/style.css?v=202609041552",
+                "/js/app.js?v=202609041552",
+                "/offline.js?v=202609041552",
             ]);
         })
     );

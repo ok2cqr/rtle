@@ -7,12 +7,12 @@ window.onload = () => {
     "use strict";
 
     if ("serviceWorker" in navigator && document.URL.split(":")[0] !== "file") {
-        navigator.serviceWorker.register("/offline.js?v=202508242117");
+        navigator.serviceWorker.register("/offline.js?v=202609041552");
     }
 }
 
 if ("serviceWorker" in navigator) {
-    navigator.serviceWorker.register("/offline.js?v=202508242117").then((registration) => {
+    navigator.serviceWorker.register("/offline.js?v=202609041552").then((registration) => {
         registration.addEventListener("updatefound", () => {
             const newWorker = registration.installing;
             newWorker.addEventListener("statechange", () => {
@@ -236,7 +236,7 @@ function parseQsoData(qsoData) {
             freq = item;
             band = '';
         } else if (
-            item.match(/^([A-Z]*[F]{2}-\d{4})|([A-Z]*[A-Z]\/[A-Z]{2}-\d{3})$/i)
+            item.match(/^([A-Z]*[F]{2}-\d{4})|([A-Z]*[A-Z]\/[A-Z]{2}-\d{3})$|^([A-Z0-9]{2}R-\d{4})$/i)
         ) {
             sotaWff = item.toUpperCase();
         } else if (
@@ -505,9 +505,9 @@ function checkSettings() {
     }
 
     if (document.getElementById('my-sota-wwff').value.length === 0) {
-        console.log('Enter the WWFF/SOTA');
-        messages += '<span class="text-danger">Enter WWFF/SOTA</span><br>';
-        errorMessages.push('Enter the WWFF/SOTA');
+        console.log('Enter the WWFF/SOTA/TOTA');
+        messages += '<span class="text-danger">Enter WWFF/SOTA/TOTA</span><br>';
+        errorMessages.push('Enter the WWFF/SOTA/TOTA');
     }
 
     if (document.getElementById('my-call').value.length === 0) {
@@ -607,7 +607,7 @@ Internet: https://rtle.ok2cqr.com
 
 <ADIF_VER:5>2.2.1
 <PROGRAMID:4>RTLE
-<PROGRAMVERSION:12>202508242117
+<PROGRAMVERSION:12>202609041552
 ${qsoCount}
 <EOH>
 
@@ -644,6 +644,9 @@ ${qsoCount}
                 qso += getAdifTag("SIG", "WWFF");
                 qso += getAdifTag("SIG_INFO", sotaWwff);
                 qso += getAdifTag("WWFF_REF", sotaWwff);
+            } else if (isTOTA(sotaWwff)) {
+                qso += getAdifTag("SIG", "TOTA");
+                qso += getAdifTag("SIG_INFO", sotaWwff);
             }
         }
 
@@ -661,6 +664,9 @@ ${qsoCount}
             qso += getAdifTag("MY_SIG", "WWFF");
             qso += getAdifTag("MY_SIG_INFO", mySotaWwff);
             qso += getAdifTag('MY_WWFF_REF', mySotaWwff);
+        } else if (isTOTA(mySotaWwff)) {
+            qso += getAdifTag("MY_SIG", "TOTA");
+            qso += getAdifTag("MY_SIG_INFO", mySotaWwff);
         }
 
         adifData += qso + "<EOR> \n";
@@ -709,6 +715,10 @@ function isSOTA(value) {
 
 function isWWFF(value) {
     return !!value.match(/^[A-Z]*[F]{2}-\d{4}$/);
+}
+
+function isTOTA(value) {
+    return !!value.match(/^[A-Z0-9]{2}R-\d{4}$/);
 }
 
 function download(filename, text) {
