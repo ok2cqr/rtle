@@ -174,6 +174,19 @@ const Bands = {
 };
 
 
+// Logged values and settings end up inside HTML strings, so escape them before
+// they are handed to innerHTML.
+function escapeHtml(value) {
+    const entities = {
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        '"': "&quot;",
+        "'": "&#39;",
+    };
+    return String(value).replace(/[&<>"']/g, (character) => entities[character]);
+}
+
 function loadSavedConfiguration() {
     logItems = loadAllQSO();
     console.log(logItems);
@@ -243,7 +256,7 @@ function loadStationNames() {
     }
 
     let formattedDate = window.localStorage.getItem('station-names-last-updated');
-    document.getElementById('js-station-last-downloaded-info').innerHTML = '(Last update: ' + formattedDate + ')';
+    document.getElementById('js-station-last-downloaded-info').innerHTML = '(Last update: ' + escapeHtml(formattedDate) + ')';
 
     stationNames = data
         .trim()
@@ -411,10 +424,10 @@ function displayTable() {
         row.setAttribute('data-id', log['id']);
 
         row.innerHTML = `
-            <td>${dateParts[2]}/${dateParts[1]}/${log.qsoTime}</td>
-            <td>${log.callsign}</td>
-            <td>${log.mode}/${log.band}</td>
-            <td>${log.sotaWff}</td>
+            <td>${escapeHtml(dateParts[2])}/${escapeHtml(dateParts[1])}/${escapeHtml(log.qsoTime)}</td>
+            <td>${escapeHtml(log.callsign)}</td>
+            <td>${escapeHtml(log.mode)}/${escapeHtml(log.band)}</td>
+            <td>${escapeHtml(log.sotaWff)}</td>
         `;
 
         row.addEventListener('click', () => enableEdit(row, log['id']));
@@ -1020,7 +1033,7 @@ function setListeners() {
             if (lastUpdate === null) {
                 downloadInfo = '<span class="text-warning">Station names has never been updated</span>';
             } else {
-                downloadInfo = "Station list updated at " + lastUpdate;
+                downloadInfo = "Station list updated at " + escapeHtml(lastUpdate);
             }
         } else {
             downloadInfo = '';
@@ -1035,7 +1048,7 @@ function setListeners() {
         fetch('https://rtle.ok2cqr.com/data/stations.csv', { cache: 'no-store' })
             .then(response => {
                 if (!response.ok) {
-                    document.getElementById('js-station-last-downloaded-info').innerHTML = '<span class="text-danger">File could not been downloaded: ' + response.status + ' </span>';
+                    document.getElementById('js-station-last-downloaded-info').innerHTML = '<span class="text-danger">File could not been downloaded: ' + escapeHtml(response.status) + ' </span>';
                 }
 
                 return response.text();
@@ -1048,11 +1061,11 @@ function setListeners() {
                 window.localStorage.setItem('station-names-data', data);
                 window.localStorage.setItem('station-names-last-updated', formattedDate);
 
-                document.getElementById('js-station-last-downloaded-info').innerHTML = 'Download OK <br>(Last update: ' + formattedDate + ')';
+                document.getElementById('js-station-last-downloaded-info').innerHTML = 'Download OK <br>(Last update: ' + escapeHtml(formattedDate) + ')';
                 loadStationNames();
             })
             .catch(error => {
-                document.getElementById('js-station-last-downloaded-info').innerHTML = '<span class="text-danger">File could not been downloaded: ' + error + ' </span>';
+                document.getElementById('js-station-last-downloaded-info').innerHTML = '<span class="text-danger">File could not been downloaded: ' + escapeHtml(error) + ' </span>';
             });
     });
 
