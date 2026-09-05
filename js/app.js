@@ -314,7 +314,7 @@ function parseQsoData(qsoData) {
             freq = item;
             band = '';
         } else if (
-            item.match(/^([A-Z0-9]{1,4}FF-\d{4}|[A-Z0-9]{1,4}\/[A-Z]{2}-\d{3}|[A-Z0-9]{2}R-\d{4}|B\/[A-Z0-9]{1,4}-\d{4})$/i)
+            item.match(/^([A-Z0-9]{1,4}FF-\d{4}|[A-Z0-9]{1,4}\/[A-Z]{2}-\d{3}|[A-Z0-9]{2}R-\d{4}|B\/[A-Z0-9]{1,4}-\d{4}|[A-Z]{2}-\d{4,5})$/i)
         ) {
             sotaWff = item.toUpperCase();
         } else if (
@@ -728,6 +728,10 @@ ${qsoCount}
             } else if (isBOTA(sotaWwff)) {
                 qso += getAdifTag("SIG", "WWBOTA");
                 qso += getAdifTag("SIG_INFO", sotaWwff);
+            } else if (isPOTA(sotaWwff)) {
+                qso += getAdifTag("SIG", "POTA");
+                qso += getAdifTag("SIG_INFO", sotaWwff);
+                qso += getAdifTag("POTA_REF", sotaWwff);
             }
         }
 
@@ -751,6 +755,10 @@ ${qsoCount}
         } else if (isBOTA(mySotaWwff)) {
             qso += getAdifTag("MY_SIG", "WWBOTA");
             qso += getAdifTag("MY_SIG_INFO", mySotaWwff);
+        } else if (isPOTA(mySotaWwff)) {
+            qso += getAdifTag("MY_SIG", "POTA");
+            qso += getAdifTag("MY_SIG_INFO", mySotaWwff);
+            qso += getAdifTag('MY_POTA_REF', mySotaWwff);
         }
 
         adifData += qso + "<EOR> \n";
@@ -807,6 +815,10 @@ function isTOTA(value) {
 
 function isBOTA(value) {
     return !!value.match(/^B\/[A-Z0-9]{1,4}-\d{4}$/i);
+}
+
+function isPOTA(value) {
+    return !!value.match(/^[A-Z]{2}-\d{4,5}$/i);
 }
 
 function download(filename, text) {

@@ -1,6 +1,6 @@
 # RTLE - Real-time log entry
 
-**Real-time log entry** - a tool to enter QSO from your SOTA/GMA/WWFF activations in real-time and create the ADIF file - everything just in your browser.
+**Real-time log entry** - a tool to enter QSO from your SOTA/BOTA/POTA/TOTA/GMA/WWFF activations in real-time and create the ADIF file - everything just in your browser.
 
 ## Working application is available on **[rtle.ok2cqr.com](https://rtle.ok2cqr.com)**
 
