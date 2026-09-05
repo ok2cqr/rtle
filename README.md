@@ -32,15 +32,18 @@ serving the version it already has cached.
 
 ### On the server
 
+Run as root, from the checkout:
+
 ```sh
-make deploy
+make prod
 ```
 
 That fetches the branch, hard-resets the working tree to it, bumps the stamp and
-gives the files to the web user. Defaults can be overridden:
+chowns the files to `rtle:sftpusers` - everything except `.git`, which keeps its
+own owner so git still works. Defaults can be overridden:
 
 ```sh
-make deploy BRANCH=main OWNER=www-data:www-data SUDO=
+make prod BRANCH=main OWNER=www-data:www-data
 ```
 
 The bump edits tracked files, so the working tree on the server is always dirty
