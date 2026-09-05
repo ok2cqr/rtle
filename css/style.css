@@ -55,3 +55,23 @@ tbody {
         font-size: small;
     }
 }
+
+/* Shown when a new version has taken over but the operator has something typed.
+   Sits above the modal (z-index 1055), because that is exactly when it appears. */
+#js-update-banner {
+    display: flex;
+    position: fixed;
+    bottom: 60px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 1090;
+    margin-bottom: 0;
+    width: max-content;
+    max-width: calc(100% - 2rem);
+}
+
+/* Bootstrap's d-flex would beat the hidden attribute, so the banner keeps its
+   own display rule and this one outranks it. */
+#js-update-banner[hidden] {
+    display: none;
+}

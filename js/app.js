@@ -1,27 +1,103 @@
+// Kept in step with offline.js by tools/bump-version.sh. Must stay 12 characters
+// long - the ADIF header below declares that length.
+const APP_VERSION = "202609050633";
+
 window.onload = () => {
     showTime();
     setListeners();
     loadSavedConfiguration();
     loadStationNames();
+}
 
-    "use strict";
+// Whether this page was already controlled when it loaded. clients.claim() in a
+// brand new worker fires controllerchange too, and without this flag the very
+// first visit would reload itself for no reason.
+const hadServiceWorker = "serviceWorker" in navigator && navigator.serviceWorker.controller !== null;
+let reloadingForUpdate = false;
 
-    if ("serviceWorker" in navigator && document.URL.split(":")[0] !== "file") {
-        navigator.serviceWorker.register("/offline.js?v=202609041830");
+if ("serviceWorker" in navigator && window.location.protocol.startsWith("http")) {
+    // Registered on a stable URL - the browser compares the script byte by byte,
+    // so a ?v= query would only create a new registration on every release.
+    // updateViaCache keeps the HTTP cache away from the worker script.
+    navigator.serviceWorker
+        .register("/offline.js", { updateViaCache: "none" })
+        .then((registration) => {
+            // A standalone PWA resumed from the background never navigates, so
+            // without this it would never check for a new version.
+            document.addEventListener("visibilitychange", () => {
+                if (!document.hidden) {
+                    registration.update();
+                }
+            });
+        })
+        .catch((error) => {
+            console.error("Service worker registration failed", error);
+        });
+
+    // The new worker activates on its own, this only decides when to reload.
+    navigator.serviceWorker.addEventListener("controllerchange", () => {
+        if (!hadServiceWorker || reloadingForUpdate) {
+            return;
+        }
+
+        controllerVersion().then((version) => {
+            // This page may already be the new version - a plain navigation gets
+            // fresh HTML from the network long before the new worker finishes
+            // installing. Reloading then would be a pointless second refresh.
+            if (version === APP_VERSION) {
+                return;
+            }
+
+            if (isFormClean()) {
+                reloadForUpdate();
+            } else {
+                showUpdateBanner();
+            }
+        });
+    });
+}
+
+// Resolves to null if the worker stays silent, which falls back to reloading.
+function controllerVersion() {
+    return new Promise((resolve) => {
+        const controller = navigator.serviceWorker.controller;
+
+        if (controller === null) {
+            resolve(null);
+            return;
+        }
+
+        const channel = new MessageChannel();
+        const timer = setTimeout(() => resolve(null), 1000);
+
+        channel.port1.onmessage = (event) => {
+            clearTimeout(timer);
+            resolve(event.data);
+        };
+
+        controller.postMessage("VERSION", [channel.port2]);
+    });
+}
+
+// An update must never throw away a callsign typed mid-pileup.
+function isFormClean() {
+    const qsoData = document.getElementById('js-qso-data');
+
+    return (qsoData === null || qsoData.value.trim() === '')
+        && document.querySelector('.modal.show') === null;
+}
+
+function showUpdateBanner() {
+    const banner = document.getElementById('js-update-banner');
+
+    if (banner !== null) {
+        banner.hidden = false;
     }
 }
 
-if ("serviceWorker" in navigator) {
-    navigator.serviceWorker.register("/offline.js?v=202609041830").then((registration) => {
-        registration.addEventListener("updatefound", () => {
-            const newWorker = registration.installing;
-            newWorker.addEventListener("statechange", () => {
-                if (newWorker.state === "installed" && navigator.serviceWorker.controller) {
-                    window.location.reload();
-                }
-            });
-        });
-    });
+function reloadForUpdate() {
+    reloadingForUpdate = true;
+    window.location.reload();
 }
 
 let logItems = [];
@@ -609,7 +685,7 @@ Internet: https://rtle.ok2cqr.com
 
 <ADIF_VER:5>2.2.1
 <PROGRAMID:4>RTLE
-<PROGRAMVERSION:12>202609041830
+<PROGRAMVERSION:12>${APP_VERSION}
 ${qsoCount}
 <EOH>
 
@@ -943,7 +1019,8 @@ function setListeners() {
     });
 
     document.getElementById('js-btn-download-stations').addEventListener('click', function() {
-        fetch('https://rtle.ok2cqr.com/data/stations.csv')
+        // The worker no longer caches /data/, keep the HTTP cache out of it too.
+        fetch('https://rtle.ok2cqr.com/data/stations.csv', { cache: 'no-store' })
             .then(response => {
                 if (!response.ok) {
                     document.getElementById('js-station-last-downloaded-info').innerHTML = '<span class="text-danger">File could not been downloaded: ' + response.status + ' </span>';
@@ -966,4 +1043,6 @@ function setListeners() {
                 document.getElementById('js-station-last-downloaded-info').innerHTML = '<span class="text-danger">File could not been downloaded: ' + error + ' </span>';
             });
     });
+
+    document.getElementById('js-update-reload').addEventListener('click', reloadForUpdate);
 }

@@ -1,0 +1,36 @@
+# The site is served straight from a git checkout, so keep the repository
+# itself out of reach.
+<IfModule mod_alias.c>
+    RedirectMatch 404 /\.git
+</IfModule>
+
+<IfModule mod_headers.c>
+    # Allow cross-origin requests for all domains
+    Header set Access-Control-Allow-Origin "*"
+
+    # Allow specific HTTP methods
+    Header set Access-Control-Allow-Methods "GET, POST, OPTIONS"
+
+    # Allow specific headers
+    Header set Access-Control-Allow-Headers "Content-Type"
+
+    # Cache-Control. Order matters: the last matching Header set wins, so the
+    # long-lived rule comes first and the no-cache rule below overrides it for
+    # the shell and the worker (both of which also match \.js$).
+
+    # Versioned assets (?v=...) - the URL changes on every release
+    <FilesMatch "\.(css|js|png|svg)$">
+        Header set Cache-Control "public, max-age=604800"
+    </FilesMatch>
+
+    # The shell and the service worker must always be revalidated
+    <FilesMatch "^(index\.html|offline\.js|site\.webmanifest)$">
+        Header set Cache-Control "no-cache, must-revalidate"
+    </FilesMatch>
+
+    # The station list is downloaded on demand
+    <FilesMatch "\.csv$">
+        Header set Cache-Control "no-cache"
+    </FilesMatch>
+</IfModule>
+
