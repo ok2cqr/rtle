@@ -1,4 +1,4 @@
-# Deploy on the web server:  make deploy
+# Deploy on the web server:  make prod   (run as root)
 #
 # The version stamp is bumped here rather than in a commit, so no release can
 # forget it. That leaves index.html, offline.js and js/app.js modified in the
@@ -11,14 +11,13 @@
 REMOTE ?= origin
 BRANCH ?= master
 OWNER  ?= rtle:sftpusers
-SUDO   ?= sudo
 
 # The steps are strictly sequential - never let -j interleave them
 .NOTPARALLEL:
 
-.PHONY: deploy pull bump own version
+.PHONY: prod pull bump own version
 
-deploy: pull bump own version
+prod: pull bump own version
 
 # Take the remote exactly as it is, throwing away the stamp of the last deploy
 pull:
@@ -32,7 +31,7 @@ bump:
 
 # Everything except .git, so the next deploy can still run git as this user
 own:
-	$(SUDO) find . -path ./.git -prune -o -exec chown $(OWNER) {} +
+	find . -path ./.git -prune -o -exec chown $(OWNER) {} +
 
 version:
 	@sed -n 's/^const VERSION = "\(.*\)";$$/deployed version: \1/p' offline.js
